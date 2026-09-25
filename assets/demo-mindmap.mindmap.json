@@ -1,0 +1,131 @@
+{
+  "layout": "logicalStructure",
+  "root": {
+    "data": {
+      "text": "<p>A local-notes site</p>",
+      "expand": true,
+      "uid": "6f1c2b4e-0001-4a6f-9a01-demo00000001",
+      "richText": true,
+      "isActive": false
+    },
+    "children": [
+      {
+        "data": {
+          "text": "<p>Pages</p>",
+          "uid": "6f1c2b4e-0002-4a6f-9a01-demo00000002",
+          "richText": true,
+          "expand": true,
+          "isActive": false
+        },
+        "children": [
+          {
+            "data": {
+              "text": "<p>plain Markdown, any folder layout</p>",
+              "uid": "6f1c2b4e-0003-4a6f-9a01-demo00000003",
+              "richText": true,
+              "expand": true,
+              "isActive": false
+            },
+            "children": []
+          },
+          {
+            "data": {
+              "text": "<p>wikilinks + backlinks panel</p>",
+              "uid": "6f1c2b4e-0004-4a6f-9a01-demo00000004",
+              "richText": true,
+              "expand": true,
+              "isActive": false
+            },
+            "children": []
+          }
+        ]
+      },
+      {
+        "data": {
+          "text": "<p>Mind maps</p>",
+          "uid": "6f1c2b4e-0005-4a6f-9a01-demo00000005",
+          "richText": true,
+          "expand": true,
+          "isActive": false
+        },
+        "children": [
+          {
+            "data": {
+              "text": "<p>one &lt;MindMap&gt; line in Markdown</p>",
+              "uid": "6f1c2b4e-0006-4a6f-9a01-demo00000006",
+              "richText": true,
+              "expand": true,
+              "isActive": false
+            },
+            "children": []
+          },
+          {
+            "data": {
+              "text": "<p>edits autosave to the vault (dev only)</p>",
+              "uid": "6f1c2b4e-0007-4a6f-9a01-demo00000007",
+              "richText": true,
+              "expand": true,
+              "isActive": false
+            },
+            "children": []
+          }
+        ]
+      },
+      {
+        "data": {
+          "text": "<p>Attachments</p>",
+          "uid": "6f1c2b4e-0008-4a6f-9a01-demo00000008",
+          "richText": true,
+          "expand": true,
+          "isActive": false
+        },
+        "children": [
+          {
+            "data": {
+              "text": "<p>PDF / EPUB served from the vault</p>",
+              "uid": "6f1c2b4e-0009-4a6f-9a01-demo00000009",
+              "richText": true,
+              "expand": true,
+              "isActive": false
+            },
+            "children": []
+          },
+          {
+            "data": {
+              "text": "<p>sidebar list + full-page viewer</p>",
+              "uid": "6f1c2b4e-000a-4a6f-9a01-demo0000000a",
+              "richText": true,
+              "expand": true,
+              "isActive": false
+            },
+            "children": []
+          }
+        ]
+      },
+      {
+        "data": {
+          "text": "<p>Graph</p>",
+          "uid": "6f1c2b4e-000b-4a6f-9a01-demo0000000b",
+          "richText": true,
+          "expand": true,
+          "isActive": false
+        },
+        "children": [
+          {
+            "data": {
+              "text": "<p>every [[link]] becomes an edge</p>",
+              "uid": "6f1c2b4e-000c-4a6f-9a01-demo0000000c",
+              "richText": true,
+              "expand": true,
+              "isActive": false
+            },
+            "children": []
+          }
+        ]
+      }
+    ]
+  },
+  "theme": {
+    "template": "default"
+  }
+}

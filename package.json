@@ -1,0 +1,31 @@
+{
+  "name": "local-notes-demo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "local-notes 官方示例：一个结构无关的 Markdown vault + 最小 VitePress 接入站点",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiao-an-c/local-notes.git"
+  },
+  "homepage": "https://github.com/xiao-an-c/local-notes#readme",
+  "bugs": {
+    "url": "https://github.com/xiao-an-c/local-notes/issues"
+  },
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "vitepress build",
+    "preview": "vitepress preview",
+    "selftest": "node api-selftest.mjs"
+  },
+  "dependencies": {
+    "local-notes": "^0.1.0"
+  },
+  "devDependencies": {
+    "@nolebase/markdown-it-bi-directional-links": "^2.18.2",
+    "markdown-it": "^14.3.0",
+    "vitepress": "2.0.0-alpha.20",
+    "vitepress-sidebar": "^1.40.0",
+    "vue": "^3.5.41"
+  }
+}
