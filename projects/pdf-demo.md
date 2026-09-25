@@ -1,9 +1,9 @@
-# PDF demo
+# PDF 示例
 
-PDF attachments live inside the vault like any other file
-(`assets/sample.pdf` here). Three ways to show them:
+PDF 附件和其他文件一样放在笔记库里（这里是 `assets/sample.pdf`）。三种展示
+方式：
 
-## 1. Explicit component
+## 1. 显式组件
 
 ```html
 <PdfViewer src="/vault/assets/sample.pdf" height="480px" />
@@ -11,15 +11,14 @@ PDF attachments live inside the vault like any other file
 
 <PdfViewer src="/vault/assets/sample.pdf" height="480px" />
 
-## 2. Markdown link to a `.pdf` (auto-embedded)
+## 2. Markdown 链接指向 `.pdf`（自动内嵌）
 
-[Open sample.pdf (auto-embeds below)](../assets/sample.pdf)
+[打开 sample.pdf（自动内嵌在下方）](../assets/sample.pdf)
 
-## 3. Obsidian-style embed
+## 3. Obsidian 风格嵌入
 
 ![[sample.pdf]]
 
-Every attachment is also listed in the sidebar (via
-`mergeVaultAssetSidebar`) and opens in the full-page [[viewer]] — that flow
-works in static builds too, while the editing features need `pnpm dev`.
-Related reading: [[what-is-local-notes]].
+每个附件也会进侧栏（靠 `mergeVaultAssetSidebar`），并能用整页 [[viewer]]
+打开——这条链路在静态构建里同样可用，只有编辑能力需要 `pnpm dev`。
+延伸阅读：[[what-is-local-notes]]。

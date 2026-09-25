@@ -75,7 +75,7 @@ const tplRes = await api("/md", {
 });
 ok("POST 模板新建 201", tplRes.status === 201, `status=${tplRes.status}`);
 const tplCreated = await j(await api("/md?path=journal%2Fapi-selftest-tpl.md"));
-ok("模板内容逐字复制", tplCreated.content.includes("# Meeting note") && tplCreated.content.includes("templates/meeting-note.md"));
+ok("模板内容逐字复制", tplCreated.content.includes("# 会议记录") && tplCreated.content.includes("templates/meeting-note.md"));
 
 // 清理测试文件
 const fs = await import("node:fs");

@@ -1,24 +1,22 @@
-# Mind map demo
+# 思维导图示例
 
-The mind map below is stored as a regular file next to your notes
-(`assets/demo-mindmap.mindmap.json`) and embedded with one line of Markdown:
+下面这张思维导图就是放在笔记旁边的普通文件
+（`assets/demo-mindmap.mindmap.json`），用一行 Markdown 嵌入：
 
 ```html
 <MindMap src="/vault/assets/demo-mindmap.mindmap.json" />
 ```
 
-- Reading mode: scroll to zoom, drag to pan, fullscreen button top-right.
-- With `pnpm dev` running, hit **Edit** (top-right of the canvas): double-click
-  a node to rename it, <kbd>Tab</kbd> adds a child, <kbd>Enter</kbd> a sibling,
-  and changes autosave back to the JSON file after 3 seconds.
+- 阅读模式：滚轮缩放、拖拽平移，右上角有全屏按钮。
+- `pnpm dev` 运行时，点画布右上角的 **编辑**：双击节点改名，<kbd>Tab</kbd>
+  加子节点，<kbd>Enter</kbd> 加兄弟节点，改动 3 秒后自动保存回 JSON 文件。
 
 <MindMap src="/vault/assets/demo-mindmap.mindmap.json" height="460px" />
 
-Prefer text? The same content as an outline:
+更喜欢文字？同样的内容用大纲表示：
 
-- **A local-notes site**
-  - Pages — plain Markdown, wikilinks, backlinks
-  - Mind maps — one `<MindMap>` line, data saved in your vault
-  - Attachments — PDFs/EPUBs served from the vault and listed in the sidebar
-    (see [[pdf-demo]])
-  - Graph — every `[[link]]` becomes an edge on the [[graph]] page
+- **一个 local-notes 站点**
+  - 页面——普通 Markdown、双链、反链
+  - 思维导图——一行 `<MindMap>`，数据存回你的笔记库
+  - 附件——PDF/EPUB 由笔记库提供、进侧栏（见 [[pdf-demo]]）
+  - 图谱——每条 `[[链接]]` 都会成为 [[graph]] 页上的一条边

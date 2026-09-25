@@ -1,26 +1,24 @@
-# What is local-notes?
+# local-notes 是什么？
 
-`local-notes` is a [VitePress](https://vitepress.dev/) theme + plugin set that
-publishes a local Markdown vault as a website **with in-browser editing**.
-Think "Obsidian vault, shareable as a docs site": the same files stay on disk,
-and the site is just a window onto them.
+`local-notes` 是一套 [VitePress](https://vitepress.dev/) 主题 + 插件，把一个
+本地 Markdown 笔记库发布成**可在浏览器里直接编辑**的网站。可以理解成
+「Obsidian 笔记库，顺手变成文档站」：文件始终留在磁盘上，站点只是它的一扇窗。
 
-- **Zero structure assumptions** — this demo vault deliberately uses the most
-  boring folder names imaginable (`notes/`, `journal/`, `projects/`). Point
-  `vaultDir` at *your* root and you are done.
-- **Edit in place** — the Monaco-based editor saves back to the local `.md`
-  files over a dev-server API, with optimistic-concurrency protection
-  (HTTP 409 when the file changed on disk behind your back, e.g. because
-  Obsidian just saved it).
-- **Wikilinks & backlinks** — `[[markdown-showcase]]` style links render as
-  normal hyperlinks, and every page lists its backlinks at the bottom. Start
-  from [[markdown-showcase]] and watch the backlink panel.
-- **Mind maps, graphs, PDFs** — see [[mindmap-demo]], the [[graph]] page and
-  [[pdf-demo]].
+- **对目录结构零假设**——这个示例笔记库故意用了最无聊的目录名
+  （`notes/`、`journal/`、`projects/`）。把 `vaultDir` 指向**你的**根目录
+  就完事了。
+- **原地编辑**——基于 Monaco 的编辑器通过 dev 服务 API 把改动写回本地
+  `.md` 文件，带乐观并发保护（文件在你背后被改过——比如 Obsidian 刚保存
+  ——保存会返回 HTTP 409，绝不盲目覆盖）。
+- **双链与反链**——`[[markdown-showcase]]` 这类链接渲染成普通超链接，
+  每个页面底部自动列出反链。从 [[markdown-showcase]] 出发，看看底部的
+  反链面板。
+- **思维导图、图谱、PDF**——见 [[mindmap-demo]]、[[graph]] 页和
+  [[pdf-demo]]。
 
-## Where to next?
+## 接下来看什么？
 
-1. [[markdown-showcase]] — what Markdown flavor is supported
-2. [[mindmap-demo]] — an embedded, editable mind map
-3. [[pdf-demo]] — PDF attachments with an inline viewer
-4. [[2026-09-11]] — a plain journal note, proving daily notes need no ceremony
+1. [[markdown-showcase]]——支持哪些 Markdown 语法
+2. [[mindmap-demo]]——内嵌且可编辑的思维导图
+3. [[pdf-demo]]——PDF 附件与内嵌预览
+4. [[2026-09-11]]——一篇普通日记，证明日记笔记不需要任何仪式

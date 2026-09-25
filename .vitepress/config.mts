@@ -18,8 +18,8 @@ import {
 const vaultDir = fileURLToPath(new URL("../", import.meta.url));
 
 export default defineConfig({
-  title: "local-notes demo",
-  description: "A structure-agnostic Markdown vault published by local-notes",
+  title: "local-notes 示例站点",
+  description: "由 local-notes 发布的结构无关 Markdown 笔记库",
 
   // vault 内允许指向尚未创建页面的 wikilink，忽略死链
   ignoreDeadLinks: true,
@@ -66,9 +66,9 @@ export default defineConfig({
 
   themeConfig: {
     nav: [
-      { text: "Home", link: "/" },
-      { text: "Graph", link: "/graph" },
-      { text: "Attachments", link: "/viewer" },
+      { text: "首页", link: "/" },
+      { text: "图谱", link: "/graph" },
+      { text: "附件", link: "/viewer" },
     ],
     // 动态扫描 vault 生成侧栏（推荐做法）：新建/删除笔记后，库的自动重启 +
     // 页面自动刷新会把变更即时反映到菜单。也可换成任意 sidebar 生成器或
@@ -87,7 +87,13 @@ export default defineConfig({
           "README.md",
           "LICENSE",
         ],
-        capitalizeFirst: true,
+        // 菜单文字取笔记本身的中文标题：优先 frontmatter title（图谱/附件页），
+        // 否则取正文首个一级标题（笔记页），都没有才回落到文件名
+        useTitleFromFrontmatter: true,
+        useTitleFromFileHeading: true,
+        // 标题已来自笔记本身，不再对首字母做大写化（否则 local-notes 会被写成
+        // Local-notes）
+        capitalizeFirst: false,
         collapsed: true,
       }),
       { vaultDir },

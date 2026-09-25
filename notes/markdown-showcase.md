@@ -1,36 +1,36 @@
-# Markdown showcase
+# Markdown 展示
 
-A tour of what renders inside a local-notes site. Everything here is a plain
-`.md` file on disk — this page links to [[what-is-local-notes]] and is, in
-turn, linked from it (check the **Backlinks** panel below).
+这里展示 local-notes 站点能渲染出什么。本页所有内容都是磁盘上的普通 `.md`
+文件——本页链接到 [[what-is-local-notes]]，也被它反向链接（看下面的
+**反链**面板）。
 
-## Lists
+## 列表
 
-- Wikilinks: [[mindmap-demo]], [[pdf-demo]], [[2026-09-11]]
-- Ordinary links: [VitePress](https://vitepress.dev/)
-- `inline code`, **bold**, *italic*, ~~strikethrough~~
+- 双链：[[mindmap-demo]]、[[pdf-demo]]、[[2026-09-11]]
+- 普通链接：[VitePress](https://vitepress.dev/)
+- `行内代码`、**粗体**、*斜体*、~~删除线~~
 
-## Table
+## 表格
 
-| Feature | Works in static build? | Needs `pnpm dev`? |
+| 能力 | 静态构建可用？ | 需要 `pnpm dev`？ |
 | --- | --- | --- |
-| Reading pages | ✅ | — |
-| Wikilinks & backlinks | ✅ | — |
-| Mind map / PDF display | ✅ (read-only) | editing needs dev server |
-| Editing notes in the browser | ❌ | ✅ |
+| 阅读页面 | ✅ | — |
+| 双链与反链 | ✅ | — |
+| 思维导图 / PDF 展示 | ✅（只读） | 编辑需要 dev 服务 |
+| 在浏览器里编辑笔记 | ❌ | ✅ |
 
-## Code block
+## 代码块
 
 ```ts
-// The whole server-side integration of this demo site:
+// 这个示例站点服务端的全部接入代码：
 localNotesPlugins({ vaultDir, templateDir: "templates" });
 ```
 
-## Blockquote & task list
+## 引用块与任务列表
 
 > [!NOTE]
-> Obsidian callouts render as VitePress containers.
+> Obsidian 的 callout 会渲染成 VitePress 容器。
 
-- [x] structure-agnostic vault
-- [x] two pages linking to each other
-- [ ] your first note — hit **＋ New note** in the top bar
+- [x] 结构无关的笔记库
+- [x] 两个页面互相链接
+- [ ] 你的第一篇笔记——点顶栏 **＋ 新建笔记**

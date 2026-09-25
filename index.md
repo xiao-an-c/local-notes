@@ -1,26 +1,25 @@
-# Welcome to the local-notes demo vault 👋
+# 欢迎来到 local-notes 示例笔记库 👋
 
-This folder **is** the vault: an ordinary bunch of Markdown files in plain
-directories (`notes/`, `journal/`, `projects/`). No numbering scheme, no
-special tools — local-notes makes **zero assumptions** about how you organize
-your notes. The publishing site lives next to it in
-[`.vitepress/`](/.vitepress/config.mts) (two small files, see the
-[README quick start](https://github.com/xiao-an-c/local-notes#readme)).
+这个文件夹**就是**笔记库本体：一堆放在普通目录（`notes/`、`journal/`、
+`projects/`）里的 Markdown 文件。没有编号分区、没有专用工具——local-notes
+对你的笔记组织方式**零假设**。发布站点就在它旁边
+（[`.vitepress/`](/.vitepress/config.mts)，两个小文件，见
+[README 快速开始](https://github.com/xiao-an-c/local-notes#readme)）。
 
-## Where to click first
+## 先点哪里
 
-| What you want to see | Go here |
+| 想看什么 | 去哪 |
 | --- | --- |
-| The 1-minute tour | [[what-is-local-notes]] |
-| Headings, tables, code blocks, wikilinks | [[markdown-showcase]] |
-| An embedded **mind map** (editable in dev) | [[mindmap-demo]] |
-| An embedded **PDF** | [[pdf-demo]] |
-| The **knowledge graph** of this vault | [[graph]] |
-| All attachments in one viewer | [[viewer]] |
-| A dated note, journal style | [[2026-09-11]] |
+| 一分钟导览 | [[what-is-local-notes]] |
+| 标题、表格、代码块、双链 | [[markdown-showcase]] |
+| 内嵌的**思维导图**（dev 下可编辑） | [[mindmap-demo]] |
+| 内嵌的 **PDF** | [[pdf-demo]] |
+| 整个笔记库的**知识图谱** | [[graph]] |
+| 全部附件集中查看 | [[viewer]] |
+| 一篇日记体笔记 | [[2026-09-11]] |
 
 > [!TIP]
-> Run `pnpm dev` in this directory and every page grows an **Edit this page**
-> entry (Monaco editor, `Cmd/Ctrl+S` writes straight back to these files) plus
-> a **＋ New note** button in the top bar. Everything below the fold is
-> read-only when you visit a static build — that degradation is by design.
+> 在这个目录里跑 `pnpm dev`，每个页面就会长出**编辑此页**入口（Monaco
+> 编辑器，`Cmd/Ctrl+S` 直接写回这些文件），顶栏还会出现 **＋ 新建笔记**
+> 按钮。访问静态构建产物时，编辑能力是隐藏的、只剩阅读——这种降级是刻意
+> 设计。

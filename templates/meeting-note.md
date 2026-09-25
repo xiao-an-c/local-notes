@@ -3,20 +3,20 @@ date: "{{date}}"
 tags: [meeting]
 ---
 
-# Meeting note
+# 会议记录
 
-> Created from `templates/meeting-note.md` via **＋ New note → Template**.
-> Templates are plain `.md` files in the folder configured as `templateDir`;
-> the content is copied verbatim into the new note.
+> 由 **＋ 新建笔记 → 模板** 从 `templates/meeting-note.md` 创建。
+> 模板就是配置为 `templateDir` 的目录里的普通 `.md` 文件，内容会逐字复制
+> 进新笔记。
 
-## Attendees
-
--
-
-## Decisions
+## 参会人
 
 -
 
-## Follow-ups
+## 结论
+
+-
+
+## 待办
 
 - [ ]
