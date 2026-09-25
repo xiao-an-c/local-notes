@@ -1,0 +1,10 @@
+# 依赖
+node_modules/
+
+# VitePress 缓存与静态构建产物
+.vitepress/cache/
+.vitepress/dist/
+
+# macOS / 编辑器 / 日志
+.DS_Store
+*.log
