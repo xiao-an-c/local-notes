@@ -1,94 +1,78 @@
-# local-notes · demo vault
+# local-notes · 示例站点
 
-> The official demo of **local-notes** — an ordinary folder of Markdown notes
-> published as a VitePress site you can **edit in the browser**.
+> **local-notes** 的官方示例——一个普通的 Markdown 笔记文件夹，发布成
+> **可以在浏览器里直接编辑**的 VitePress 站点。
 
-This repository contains **only the demo site**: a structure-agnostic vault
-(`notes/`, `journal/`, `projects/`, `templates/`, `assets/`) plus the two small
-files that publish it. The `local-notes` library itself is **not** in this
-repository and is **not on npm yet**, so the demo cannot install its own
-dependency here — see [Running it](#running-it).
+本仓库**只包含这个示例站点**：一个对目录结构零假设的笔记库（`notes/`、
+`journal/`、`projects/`、`templates/`、`assets/`），外加把它发布出去的两个
+小文件。`local-notes` 库本身**不在本仓库**，也**尚未发布到 npm**，所以本
+仓库单独 `pnpm install` 目前装不上依赖——运行方式见下文「如何运行」。
 
-## What's in here
+## 目录里有什么
 
-| Path | What it is |
+| 路径 | 说明 |
 | --- | --- |
-| `notes/`, `journal/`, `projects/`, `templates/`, `assets/` | The vault — plain Markdown folders, no numbering scheme, no conventions to learn |
-| `.vitepress/config.mts` | Integration point 1/2 — one call wires the whole plugin bundle (backlinks/graph index, asset serving, dev write APIs, auto-restart, HMR guard) |
-| `.vitepress/theme/index.ts` | Integration point 2/2 — one call mounts the theme (edit entry, new-note dialog, editor, backlinks panel, graph canvas) |
-| `api-selftest.mjs` | 19-assertion dev-API self test (conflict handling, atomic writes, path traversal, templates) — self-cleaning |
-| `index.md` | The site home; every other page is an ordinary note |
+| `notes/`、`journal/`、`projects/`、`templates/`、`assets/` | 笔记库本体——普通 Markdown 目录，没有编号分区、没有需要记的约定 |
+| `.vitepress/config.mts` | 接入点 1/2——一次调用装齐整个插件组（反链/图谱索引、附件静态服务、dev 写 API、笔记增删自动重启、HMR 竞态防护） |
+| `.vitepress/theme/index.ts` | 接入点 2/2——一次调用挂载主题（编辑入口、新建笔记对话框、编辑器、反链面板、图谱画布） |
+| `api-selftest.mjs` | 19 条断言 的 dev API 自测（409 冲突、原子写、目录穿越防护、模板）——跑完自清理 |
+| `index.md` | 站点首页；其余每一页都是普通笔记 |
 
-## Running it
+## 如何运行
 
-`local-notes` is unpublished, so `pnpm install` in this repository alone cannot
-resolve `local-notes` yet. Two ways forward:
+`local-notes` 尚未发布，因此本仓库单独 `pnpm install` 还解析不到它。两条路：
 
-**1. As a workspace package of the library repo (works today)**
+**1. 作为库 monorepo 的 workspace 包运行（现在就能跑）**
 
-This folder is the demo of the library monorepo (it lives at
-`packages/local-notes/demo/` there). Clone that repo, build the library once,
-then start the demo:
+本目录就是库 monorepo 里的 `packages/local-notes/demo/`。克隆库仓库，先把
+库构建一次（demo 消费的是库的 `dist/`），再起 demo：
 
 ```sh
 pnpm install
-pnpm --filter local-notes build   # the demo consumes dist/
+pnpm --filter local-notes build   # demo 消费 dist/
 cd packages/local-notes/demo
 pnpm dev                          # http://localhost:5173
 ```
 
-**2. Standalone, once `local-notes` is published to npm**
+**2. 独立运行（等 `local-notes` 发布到 npm 之后）**
 
 ```sh
 pnpm install
 pnpm dev                          # http://localhost:5173
-pnpm build                        # static output → .vitepress/dist
-pnpm preview                      # preview the static build
+pnpm build                        # 静态产物 → .vitepress/dist
+pnpm preview                      # 预览静态产物
 ```
 
-> `README.md` and `LICENSE` are excluded from the site itself
-> (`srcExclude` in `.vitepress/config.mts`), so the repo docs never collide
-> with the vault's own `index.md`.
+> `README.md` 与 `LICENSE` 已被排除在站点之外（`.vitepress/config.mts` 的
+> `srcExclude`），因此仓库文档不会和笔记库自己的 `index.md` 抢路由。
 
-## What to look at
+## 先看哪几页
 
-| Page | Shows |
+| 页面 | 看什么 |
 | --- | --- |
-| `/` | The 1-minute tour |
-| `/notes/what-is-local-notes` | What the library does and does not do |
-| `/notes/markdown-showcase` | Headings, tables, code, wikilinks, and what needs dev mode |
-| `/notes/mindmap-demo` | An embedded `<MindMap>` (editable in dev) |
-| `/projects/pdf-demo` | An embedded PDF viewer card |
-| `/graph` | Knowledge graph of the whole vault |
-| `/viewer` | Every attachment in one viewer |
+| `/` | 一分钟导览 |
+| `/notes/what-is-local-notes` | 这个库做了什么、不做什么 |
+| `/notes/markdown-showcase` | 标题、表格、代码、双链，以及哪些能力必须 dev 模式 |
+| `/notes/mindmap-demo` | 内嵌 `<MindMap>`（dev 下可编辑） |
+| `/projects/pdf-demo` | 内嵌 PDF 预览卡片 |
+| `/graph` | 整个笔记库的知识图谱 |
+| `/viewer` | 全部附件集中查看 |
 
-## Editing in the browser
+## 浏览器内编辑
 
-- `pnpm dev` — the library adds Vite middlewares under `/api`. Every page grows
-  an **Edit this page** entry (Monaco) and the top bar a **＋ New note** button.
-  `Cmd/Ctrl+S` writes straight back to the Markdown files; writes are atomic and
-  guarded by an `mtime` optimistic lock, so an external edit (Obsidian, an
-  editor, a script) answers **409 Conflict** instead of being silently
-  overwritten.
-- `pnpm build` — none of those routes exist in the static output; the theme
-  probes the API and hides every edit affordance. Same content, read-only.
+- `pnpm dev`——库会在 `/api` 下挂 Vite 中间件。每个页面右上角长出
+  **编辑此页**（Monaco 编辑器），顶栏长出 **＋ 新建笔记**。`Cmd/Ctrl+S`
+  直接写回本地 Markdown 文件；写入是原子的，并带 `mtime` 乐观锁——外部改动
+  （Obsidian、编辑器、脚本）会得到 **409 冲突**，而不是被静默覆盖。
+- `pnpm build`——静态产物里这些路由不存在；主题会探测 API 并隐藏所有编辑
+  入口。内容一致，只是只读。
 
-With the dev server running:
+dev 服务起着的时候：
 
 ```sh
-pnpm selftest                     # or: node api-selftest.mjs http://localhost:5173
+pnpm selftest                     # 等价于：node api-selftest.mjs http://localhost:5173
 ```
 
-## 简体中文
+## 许可
 
-本仓库是 **local-notes** 的官方 demo：一个结构无关的 Markdown 笔记库
-（`notes/`、`journal/`、`projects/`…），加上把它发布成站点的两个小文件。
-**库里只有 demo**——`local-notes` 库本身不在本仓库，也尚未发布到 npm，
-因此本仓库单独 `pnpm install` 目前装不上依赖（详见上文
-[Running it](#running-it)）。在库的 monorepo 里，本目录即
-`packages/local-notes/demo/`，`pnpm dev` 起来后每个页面都有「编辑此页」，
-保存直接写回本地 md 文件；静态构建产物自动降级为只读。
-
-## License
-
-MIT © 2026 xiao-an-c — the `local-notes` library ships its own `LICENSE`.
+MIT © 2026 xiao-an-c —— `local-notes` 库自带它的 `LICENSE`。
