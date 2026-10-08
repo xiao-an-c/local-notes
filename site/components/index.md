@@ -80,6 +80,10 @@ DOM 移除在部分场景不生效）；元素常驻 body、display:none 隐藏�
 报告的样式/脚本与站点完全隔离、100% 还原；暗色站点下自动加浅色背板衬托。
 全屏由统一组件管理（工具栏「全屏」按钮或悬停按钮，Esc 退出）。
 
+> 💡 报告 HTML 的生成有配套技能：agent 会话里说「生成 HTML 报告 / 转成 HTML」
+> 即触发 `html-report` 技能（浅底研报风 + ECharts 骨架 + JS 语法自检），
+> 规范见 `.agents/skills/html-report/SKILL.md`。
+
 ```markdown
 <HtmlView src="/vault/demo/assets/demo-report.html" />
 <HtmlView src="/vault/xx/报告.html" height="720px" toolbar="false" />

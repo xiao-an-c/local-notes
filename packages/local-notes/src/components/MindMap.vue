@@ -221,6 +221,8 @@ function initInstance(data: unknown, enterEdit: boolean): void {
       readonly: !enterEdit,
       // 滚轮缩放（默认是上下平移）
       mousewheelAction: "zoom",
+      // 缩放步长：库默认 0.2（每格 ±20%）体感跳太快，降为 5%
+      scaleRatio: 0.05,
       // 首次渲染自适应画布，完整图可见
       fit: true,
     });
