@@ -1,0 +1,62 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.1.0] - 2026-09-11
+
+Initial release. Publish a local Markdown vault as a VitePress site with
+in-browser editing; zero assumptions about the vault's folder structure.
+
+### Added
+
+- **Saving a note no longer restarts the dev server (dev)** — a self-write
+  tracker (`plugins/selfWrite.ts`) marks files the library itself writes
+  (markdown save/create via the md API) so the auto-restart plugin ignores
+  them. Previously the atomic `.tmp → rename` write surfaced in fs.watch as a
+  final-name `.md` event, got misread as "note added", and triggered a restart
+  → automatic page refresh that destroyed the in-progress editing session.
+  External tools (Obsidian, editors, scripts) are unaffected and still trigger
+  the restart/sidebar refresh.
+- **Automatic page refresh on note add/remove (dev)** — the auto-restart plugin
+  broadcasts a restart notice over the Vite ws channel before touching the site
+  config, and the theme (dev-only `restartBridge`) polls a per-instance
+  `GET <apiBase>/restart-ping` boot id: once the restarted server is up, open
+  pages reload by themselves so the sidebar reflects the change immediately.
+  Previously VitePress's restart silently reconnected the browser without
+  reloading, leaving the menu stale until a manual refresh.
+- **Plugin bundle** `localNotesPlugins(options)` — one call installs:
+  - backlink/graph index exposed as `virtual:backlinks` / `virtual:graph`
+  - vault asset static serving under a configurable prefix (default `/vault/`)
+  - build-time asset copy (PDF/EPUB/mind-map JSON) when `outDir` is set
+  - mind-map save API (`PUT <apiBase>/mindmap`, atomic write)
+  - markdown read/write/new API (`GET/PUT/POST <apiBase>/md`) with mtime
+    optimistic locking — external modification answers **409 Conflict** and
+    never overwrites
+  - auto-restart of the dev server when notes are added/removed
+  - Vue plugin HMR race guard
+- **markdown-it plugins**: `pdfEmbedPlugin` (inline viewer cards for `.pdf`
+  links and Obsidian `![[file.pdf]]` embeds), bundled in
+  `localNotesMarkdownItPlugins(options)`
+- **Sidebar helper**: `mergeVaultAssetSidebar(sidebar, options)` merges vault
+  attachments (PDF/EPUB) into any sidebar array, linking to the viewer page
+- **Theme entry** `localNotesTheme(options)` — extends the VitePress default
+  theme with: "Edit this page" entry (Monaco editor, `Cmd/Ctrl+S` saves back
+  to the local file), top-bar "＋ New note" dialog (folder mapping + optional
+  templates), global singleton editor view, automatic backlinks panel, and a
+  full-canvas knowledge graph on pages with `graph: true` frontmatter;
+  globally registers `<PdfViewer>` / `<MindMap>` / `<VaultFileViewer>`
+- **Component entry** `local-notes/components` for custom themes
+- **Path safety chain** on all write APIs: suffix allow-list, `..`/NUL
+  rejection, decode+resolve containment inside `vaultDir`, hidden/skip-dir
+  rejection, atomic `tmp` + `rename` writes
+- **Demo vault** [`demo/`](./demo) — a structure-agnostic example vault
+  (`notes/`, `journal/`, `projects/`, `templates/`, `assets/`) with a minimal
+  two-file site integration, an embedded mind map, a generated sample PDF,
+  and a 19-assertion dev-API self test (`api-selftest.mjs`)
+- Documentation: this changelog, README (English with Chinese summary),
+  MIT license (Copyright (c) 2026 xiao-an-c)
+
+[0.1.0]: https://github.com/xiao-an-c/local-notes/releases/tag/v0.1.0

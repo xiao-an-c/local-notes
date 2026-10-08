@@ -1,0 +1,98 @@
+/* local-notes 组件相关全局样式（自抽离前站点 custom.css 迁入组件相关部分；
+   纯使用方项目美化——正文宽度、侧栏字号等——不进本库，留在使用方站点） */
+
+/* 反向链接面板在暗色模式下的边框（Backlinks 组件 scoped 样式无法表达
+   .dark 祖先选择器，故放主题级全局样式） */
+.dark .backlinks-panel {
+  border-top-color: var(--vp-c-divider-dark);
+}
+
+/* ---------------------------------------------------------------------------
+ * 面板显隐切换（LayoutPanelsToggle 组件，2026-09-29）
+ * - 「侧栏」按钮：html.ln-sidebar-collapsed → 隐藏左侧 VPSidebar + 内容区
+ *   padding-left 归零（VPContent 的 scoped 规则特异性高，须 !important）
+ * - 「大纲」按钮：html.ln-aside-open → 显示右侧 VPDocAside（默认收起规则
+ *   在使用方站点 custom.css，因为 aside 默认态是站点级偏好）
+ * ------------------------------------------------------------------------- */
+
+/* 按钮组：导航栏内，仅桌面端显示（<960px 侧栏是抽屉、大纲本就不显示） */
+.ln-nav-toggles {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* 与左侧站点标题区拉开距离（nav-bar-content-before 插槽紧贴标题，实测过挤） */
+  margin-left: 16px;
+}
+
+.ln-panel-toggles {
+  display: none;
+  align-items: center;
+  gap: 4px;
+}
+
+.ln-toggle-btn {
+  font-size: 12px;
+  line-height: 1;
+  padding: 4px 8px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--vp-c-text-3);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.25s, border-color 0.25s;
+}
+
+.ln-toggle-btn:hover {
+  color: var(--vp-c-text-1);
+  border-color: var(--vp-c-text-2);
+}
+
+/* active = 面板当前展开 */
+.ln-toggle-btn.active {
+  color: var(--vp-c-brand-1);
+  border-color: var(--vp-c-brand-1);
+  background: var(--vp-c-brand-soft);
+}
+
+@media (min-width: 960px) {
+  .ln-panel-toggles {
+    display: inline-flex;
+  }
+}
+
+/* 折叠态：左侧栏向左滑出（不用 display:none——那是瞬间消失，「菜单不移动」），
+   内容区 padding 同步过渡归零；visibility 延迟到滑出结束再生效，避免动画
+   期间菜单凭空消失 */
+@media (min-width: 960px) {
+  /* 展开态声明过渡：类移除（重新展开）时同样有滑动动画 */
+  .VPSidebar {
+    transition: transform 0.25s ease, opacity 0.25s ease, visibility 0.25s;
+  }
+  .VPContent.has-sidebar {
+    transition: padding-left 0.25s ease, padding-right 0.25s ease;
+  }
+
+  html.ln-sidebar-collapsed .VPSidebar {
+    transform: translateX(-100%) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    /* visibility 立刻变 hidden 会砍掉动画，延迟到 0.25s 后再生效 */
+    transition: transform 0.25s ease, opacity 0.25s ease,
+      visibility 0s linear 0.25s !important;
+  }
+
+  html.ln-sidebar-collapsed .VPContent.has-sidebar {
+    padding-left: 0 !important;
+  }
+}
+
+/* 90rem+ 默认主题还有基于 --vp-layout-max-width 的右侧 padding，
+   侧栏收起时同样归零（否则右侧留白不对称） */
+@media (min-width: 90rem) {
+  html.ln-sidebar-collapsed .VPContent.has-sidebar {
+    padding-right: 0 !important;
+  }
+}
+

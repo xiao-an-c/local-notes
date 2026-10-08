@@ -1,5 +1,10 @@
 # 依赖
 node_modules/
+.pnpm-store/
+
+# TTS 工作目录（venv 与中间文本）
+.tts-env/
+.tts-work/
 
 # VitePress 缓存与静态构建产物
 .vitepress/cache/
@@ -8,3 +13,11 @@ node_modules/
 # macOS / 编辑器 / 日志
 .DS_Store
 *.log
+
+
+# DSH 会话缓存（本地工具，不入库）
+.dsh-mattskillsdeck-cache/
+
+# lock 文件
+package-lock.json
+pnpm-lock.yaml

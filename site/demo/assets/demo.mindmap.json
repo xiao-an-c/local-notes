@@ -1,0 +1,38 @@
+{
+  "layout": "logicalStructure",
+  "root": {
+    "data": {
+      "text": "<p>local-notes 组件</p>",
+      "expand": true,
+      "uid": "demo-root-0001",
+      "richText": true,
+      "isActive": false
+    },
+    "children": [
+      {
+        "data": { "text": "<p>阅读组件</p>", "expand": true, "uid": "demo-n1", "richText": true },
+        "children": [
+          { "data": { "text": "<p>HtmlView · HTML 报告</p>", "uid": "demo-n11", "richText": true }, "children": [] },
+          { "data": { "text": "<p>PdfViewer · PDF 预览</p>", "uid": "demo-n12", "richText": true }, "children": [] },
+          { "data": { "text": "<p>MindMap · 思维导图（本图）</p>", "uid": "demo-n13", "richText": true }, "children": [] }
+        ]
+      },
+      {
+        "data": { "text": "<p>导航组件</p>", "expand": true, "uid": "demo-n2", "richText": true },
+        "children": [
+          { "data": { "text": "<p>Graph · 知识图谱页</p>", "uid": "demo-n21", "richText": true }, "children": [] },
+          { "data": { "text": "<p>Backlinks · 反向链接面板</p>", "uid": "demo-n22", "richText": true }, "children": [] },
+          { "data": { "text": "<p>双链 wikilink</p>", "uid": "demo-n23", "richText": true }, "children": [] }
+        ]
+      },
+      {
+        "data": { "text": "<p>站点自有</p>", "expand": true, "uid": "demo-n3", "richText": true },
+        "children": [
+          { "data": { "text": "<p>Mermaid · 图表</p>", "uid": "demo-n31", "richText": true }, "children": [] },
+          { "data": { "text": "<p>CardGrid · 卡片网格</p>", "uid": "demo-n32", "richText": true }, "children": [] },
+          { "data": { "text": "<p>FullscreenOverlay · 统一全屏</p>", "uid": "demo-n33", "richText": true }, "children": [] }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>站点演示报告</title>
+<style>
+  /* 自包含演示报告：不依赖任何外部资源，iframe 整页加载即 100% 还原 */
+  :root {
+    --bg: #f6f4ef; --card: #ffffff; --ink: #2b2620; --muted: #8a8378;
+    --accent: #4a7dbd; --line: #e5e0d6; --bar: #6a93c4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1e1b17; --card: #26221d; --ink: #e8e2d6; --muted: #948c7e;
+      --accent: #7da7d8; --line: #3a342c; --bar: #5f82ad;
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", serif;
+    background: var(--bg); color: var(--ink); padding: 32px 36px; line-height: 1.7;
+  }
+  .head { border-bottom: 3px double var(--accent); padding-bottom: 14px; margin-bottom: 22px; }
+  .head h1 { font-size: 22px; letter-spacing: 2px; }
+  .head .sub { color: var(--muted); font-size: 12px; margin-top: 6px; letter-spacing: 1px; }
+  .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+  .card .k { color: var(--muted); font-size: 12px; }
+  .card .v { font-size: 24px; font-weight: 700; margin-top: 4px; }
+  .card .v small { font-size: 12px; font-weight: 400; color: var(--muted); }
+  h2 { font-size: 15px; margin: 4px 0 12px; letter-spacing: 1px; }
+  .chart-card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 18px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 22px; font-size: 13px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; }
+  th { color: var(--muted); font-weight: 500; font-size: 12px; }
+  .up { color: #4a8c5c; }
+  .foot { margin-top: 26px; color: var(--muted); font-size: 11px; text-align: center; letter-spacing: 1px; }
+</style>
+</head>
+<body>
+  <div class="head">
+    <h1>站点 · 月度统计报告（演示）</h1>
+    <div class="sub">自包含 HTML 演示文件 · 由 local-notes HtmlView 内嵌渲染 · 2026-10</div>
+  </div>
+
+  <div class="cards">
+    <div class="card"><div class="k">文档总数</div><div class="v">12<small> 篇</small></div></div>
+    <div class="card"><div class="k">累计字数</div><div class="v">3.4<small> 万字</small></div></div>
+    <div class="card"><div class="k">本月新增</div><div class="v">3<small> 篇</small></div></div>
+    <div class="card"><div class="k">附件</div><div class="v">2<small> 个</small></div></div>
+  </div>
+
+  <div class="chart-card">
+    <h2>近六个月文档数（内联 SVG，无外部依赖）</h2>
+    <svg viewBox="0 0 640 180" width="100%" height="180" role="img" aria-label="月度文档数柱状图">
+      <line x1="30" y1="150" x2="620" y2="150" stroke="var(--line)" stroke-width="1"/>
+      <line x1="30" y1="90"  x2="620" y2="90"  stroke="var(--line)" stroke-width="1" stroke-dasharray="4 4"/>
+      <line x1="30" y1="30"  x2="620" y2="30"  stroke="var(--line)" stroke-width="1" stroke-dasharray="4 4"/>
+      <rect x="55"  y="100" width="60" height="50" rx="3" fill="var(--bar)" opacity="0.55"/>
+      <rect x="150" y="85"  width="60" height="65" rx="3" fill="var(--bar)" opacity="0.62"/>
+      <rect x="245" y="70"  width="60" height="80" rx="3" fill="var(--bar)" opacity="0.70"/>
+      <rect x="340" y="55"  width="60" height="95" rx="3" fill="var(--bar)" opacity="0.78"/>
+      <rect x="435" y="60"  width="60" height="90" rx="3" fill="var(--bar)" opacity="0.86"/>
+      <rect x="530" y="30"  width="60" height="120" rx="3" fill="var(--bar)"/>
+      <text x="85"  y="166" font-size="10" fill="var(--muted)" text-anchor="middle">5月</text>
+      <text x="180" y="166" font-size="10" fill="var(--muted)" text-anchor="middle">6月</text>
+      <text x="275" y="166" font-size="10" fill="var(--muted)" text-anchor="middle">7月</text>
+      <text x="370" y="166" font-size="10" fill="var(--muted)" text-anchor="middle">8月</text>
+      <text x="465" y="166" font-size="10" fill="var(--muted)" text-anchor="middle">9月</text>
+      <text x="560" y="166" font-size="10" fill="var(--muted)" text-anchor="middle">10月</text>
+      <text x="560" y="24"  font-size="11" fill="var(--ink)" text-anchor="middle" font-weight="bold">12</text>
+    </svg>
+  </div>
+
+  <table>
+    <thead><tr><th>分类</th><th>篇数</th><th>较上月</th><th>备注</th></tr></thead>
+    <tbody>
+      <tr><td>components</td><td>1</td><td class="up">新增</td><td>组件文档</td></tr>
+      <tr><td>guides</td><td>3</td><td class="up">+1</td><td>新增模板指南</td></tr>
+      <tr><td>demo</td><td>1</td><td class="up">新增</td><td>Markdown 演示</td></tr>
+    </tbody>
+  </table>
+
+  <div class="foot">本页为纯静态自包含 HTML · 样式与脚本与站点完全隔离（iframe 沙箱）</div>
+</body>
+</html>

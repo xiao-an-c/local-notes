@@ -1,0 +1,23 @@
+/**
+ * 组件统一导出（全部为真实实现）。
+ *
+ * - L2：MindMap / MarkdownEditor / EditThisPage / NewNoteDialog /
+ *   NavBarNewNote——编辑模式全家桶与思维导图；
+ * - L3：Graph / PdfViewer / VaultFileViewer / Backlinks——图谱 / PDF 预览 /
+ *   附件查看页 / 反链面板（数据依赖 backlinksPlugin 的 virtual:graph /
+ *   virtual:backlinks 虚拟模块，须配合 localNotesPlugins 使用）。
+ *
+ * 组件单独引用示例：`import { MindMap } from "local-notes/components"`；
+ * 编辑器组件依赖主题配置（apiBase/assetPrefix 等），建议经 localNotesTheme()
+ * 组装使用（组件单独使用时取全默认值）。
+ */
+export { Backlinks, type BacklinksComponent, type BacklinksProps } from "./Backlinks";
+export { EditThisPage, type EditThisPageComponent } from "./EditThisPage";
+export { Graph, type GraphComponent, type GraphProps } from "./Graph";
+export { HtmlView, type HtmlViewComponent, type HtmlViewProps } from "./HtmlView";
+export { MarkdownEditor, type MarkdownEditorComponent, type MarkdownEditorEmits, type MarkdownEditorProps } from "./MarkdownEditor";
+export { MindMap, type MindMapComponent, type MindMapProps } from "./MindMap";
+export { NavBarNewNote, type NavBarNewNoteComponent } from "./NavBarNewNote";
+export { NewNoteDialog, type NewNoteDialogComponent } from "./NewNoteDialog";
+export { PdfViewer, type PdfViewerComponent, type PdfViewerProps } from "./PdfViewer";
+export { VaultFileViewer, type VaultFileViewerComponent, type VaultFileViewerProps } from "./VaultFileViewer";

@@ -1,78 +1,69 @@
-# local-notes · 示例站点
+# Notes · 本地文档站
 
-> **local-notes** 的官方示例——一个普通的 Markdown 笔记文件夹，发布成
-> **可以在浏览器里直接编辑**的 VitePress 站点。
+> 跑在本机的 Markdown 文档站：`site/` 是文档根，写普通 Markdown（兼容
+> Obsidian 双链），由 [local-notes](https://github.com/xiao-an-c/local-notes)
+> 发布成 VitePress 站点——知识图谱、反向链接、附件预览、思维导图开箱即用。
 
-本仓库**只包含这个示例站点**：一个对目录结构零假设的笔记库（`notes/`、
-`journal/`、`projects/`、`templates/`、`assets/`），外加把它发布出去的两个
-小文件。`local-notes` 库本身**不在本仓库**，也**尚未发布到 npm**，所以本
-仓库单独 `pnpm install` 目前装不上依赖——运行方式见下文「如何运行」。
-
-## 目录里有什么
+## 目录结构
 
 | 路径 | 说明 |
 | --- | --- |
-| `notes/`、`journal/`、`projects/`、`templates/`、`assets/` | 笔记库本体——普通 Markdown 目录，没有编号分区、没有需要记的约定 |
-| `.vitepress/config.mts` | 接入点 1/2——一次调用装齐整个插件组（反链/图谱索引、附件静态服务、dev 写 API、笔记增删自动重启、HMR 竞态防护） |
-| `.vitepress/theme/index.ts` | 接入点 2/2——一次调用挂载主题（编辑入口、新建笔记对话框、编辑器、反链面板、图谱画布） |
-| `api-selftest.mjs` | 19 条断言 的 dev API 自测（409 冲突、原子写、目录穿越防护、模板）——跑完自清理 |
-| `index.md` | 站点首页；其余每一页都是普通笔记 |
+| `site/` | **文档根** = VitePress `srcDir` = local-notes vault。`index.md` 首页、`graph.md` 知识图谱、`viewer.md` 附件预览、`guides/` 指南、`demo/` 演示、`components/` 组件文档；**侧栏菜单按文件夹结构自动生成** |
+| `site/templates/` | 「新建笔记」模板（不生成页面、不进菜单） |
+| `packages/local-notes/` | local-notes 库源码（原版 TS/Vue）。站点**直接相对导入源码**——无 dist、无包依赖，改库源码保存即生效 |
+| `.vitepress/` | 站点工程：`config.mts` 配置、`theme/` 主题入口与站点样式、`word-count/` 字数徽标插件 |
+| `tools/` | 命令行工具（`wordcount.ts` 字数统计等） |
+| `.agents/docs/` | Agent 协作约定（Issues、标签、领域文档） |
 
-## 如何运行
-
-`local-notes` 尚未发布，因此本仓库单独 `pnpm install` 还解析不到它。两条路：
-
-**1. 作为库 monorepo 的 workspace 包运行（现在就能跑）**
-
-本目录就是库 monorepo 里的 `packages/local-notes/demo/`。克隆库仓库，先把
-库构建一次（demo 消费的是库的 `dist/`），再起 demo：
+## 快速开始
 
 ```sh
 pnpm install
-pnpm --filter local-notes build   # demo 消费 dist/
-cd packages/local-notes/demo
-pnpm dev                          # http://localhost:5173
+pnpm dev      # http://localhost:5173，改动即自动刷新
+pnpm build    # 静态产物 → .vitepress/dist
+pnpm preview  # 本地预览构建产物
 ```
 
-**2. 独立运行（等 `local-notes` 发布到 npm 之后）**
+## 站点能力
+
+- **双链与反链**：`[[wikilink]]` 渲染、每页自动反向链接面板、整页知识图谱（frontmatter `graph: true`）
+- **组件内嵌**：Markdown 正文直接写 `<HtmlView>`（自包含 HTML 报告）、`<MindMap>`（思维导图，dev 可在线编辑）、`<PdfViewer>`（PDF）——详见站点内 [组件文档](site/components/index.md)
+- **附件预览**：vault 内 PDF/EPUB 链接自动指向 `/viewer` 预览页；build 产物同样可读
+- **字数徽标**：每页标题下显示汉字/字符/段落（口径与命令行 `pnpm wordcount` 一致）
+- **中文搜索**：Intl.Segmenter 词级分词，local search 可命中中文查询
+
+编辑全家桶（浏览器内 Monaco 编辑、新建笔记对话框）在库中可用，本站以纯阅读姿态
+运行——已用主题选项 `enableEditThisPage` / `enableNewNote` 停用，删掉
+`.vitepress/theme/index.ts` 里这两行即可恢复。
+
+## local-notes 源码直用
+
+`packages/local-notes/src/` 保留了库的**原版 TS/Vue 源码**（含组件/插件/主题三层）：
+
+- 站点经相对导入消费（`config.mts` 导入插件组、`theme/index.ts` 导入主题），改源码即时生效
+- 历史定制：`RESTART_PENDING_EVENT` 常量移入双端安全的 `options.ts`（否则 dev 模式
+  把 `node:fs` 拖进浏览器模块图）、主题新增 `enableEditThisPage` / `enableNewNote` 开关
+- 重建 dist 非必需；若要独立打包需补装库的 devDependencies（见 `packages/local-notes/README.md`）
+
+## 配置速查（`.vitepress/config.mts`）
+
+| 配置 | 当前值 | 说明 |
+| --- | --- | --- |
+| `srcDir` | `site` | 文档根，路由从它算起 |
+| `srcExclude` | `templates/**` | 模板不生成页面（仓库工程目录本就在文档根外） |
+| 侧栏 | `generateSidebar` 动态扫描 | 按 `site/` 文件夹结构生成；仅排除 `templates/**` |
+| 主题选项 | 阅读模式 | 编辑/新建入口关闭 |
+
+## 字数统计
 
 ```sh
-pnpm install
-pnpm dev                          # http://localhost:5173
-pnpm build                        # 静态产物 → .vitepress/dist
-pnpm preview                      # 预览静态产物
+pnpm wordcount <目录>              # 按目录汇总汉字/字符数
+pnpm wordcount <目录> --target <文件>   # 对照 frontmatter 里的 target-words 给进度
 ```
 
-> `README.md` 与 `LICENSE` 已被排除在站点之外（`.vitepress/config.mts` 的
-> `srcExclude`），因此仓库文档不会和笔记库自己的 `index.md` 抢路由。
-
-## 先看哪几页
-
-| 页面 | 看什么 |
-| --- | --- |
-| `/` | 一分钟导览 |
-| `/notes/what-is-local-notes` | 这个库做了什么、不做什么 |
-| `/notes/markdown-showcase` | 标题、表格、代码、双链，以及哪些能力必须 dev 模式 |
-| `/notes/mindmap-demo` | 内嵌 `<MindMap>`（dev 下可编辑） |
-| `/projects/pdf-demo` | 内嵌 PDF 预览卡片 |
-| `/graph` | 整个笔记库的知识图谱 |
-| `/viewer` | 全部附件集中查看 |
-
-## 浏览器内编辑
-
-- `pnpm dev`——库会在 `/api` 下挂 Vite 中间件。每个页面右上角长出
-  **编辑此页**（Monaco 编辑器），顶栏长出 **＋ 新建笔记**。`Cmd/Ctrl+S`
-  直接写回本地 Markdown 文件；写入是原子的，并带 `mtime` 乐观锁——外部改动
-  （Obsidian、编辑器、脚本）会得到 **409 冲突**，而不是被静默覆盖。
-- `pnpm build`——静态产物里这些路由不存在；主题会探测 API 并隐藏所有编辑
-  入口。内容一致，只是只读。
-
-dev 服务起着的时候：
-
-```sh
-pnpm selftest                     # 等价于：node api-selftest.mjs http://localhost:5173
-```
+口径为 Unicode `Script=Han` 汉字数（平台交稿口径），与站点徽标共用同一内核
+（`.vitepress/word-count/`）。
 
 ## 许可
 
-MIT © 2026 xiao-an-c —— `local-notes` 库自带它的 `LICENSE`。
+MIT © 2026 xiao-an-c —— `packages/local-notes/` 自带库的 `LICENSE`。

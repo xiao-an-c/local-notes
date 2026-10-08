@@ -1,0 +1,118 @@
+/* 站点自定义样式：左中右三栏布局 + 右侧大纲开关。
+ * 依赖 local-notes 面板开关按钮写入的 html 类：
+ * - html.ln-sidebar-collapsed：左侧栏收起
+ * - html.ln-aside-open：右侧大纲展开
+ * 断点约定：≥960px 侧栏生效（VitePress 默认），≥1280px 三栏布局生效。 */
+
+/* ---------------------------------------------------------------------------
+ * 右侧大纲默认收起（「大纲」按钮动态开/关）
+ * - 默认：html 无 ln-aside-open 类 → .aside 隐藏
+ * - 点「大纲」：html.ln-aside-open → 右栏以固定宽显示
+ * ------------------------------------------------------------------------- */
+@media (min-width: 1280px) {
+  html:not(.ln-aside-open) .VPDoc.has-aside .aside {
+    display: none !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * 三栏布局（≥1280px）：左（侧栏 17rem 固定）/ 中（内容自适应撑满）/ 右（大纲固定宽）
+ * VitePress 默认把内容限制在 --vp-layout-max-width 内居中，这里全部解开。
+ * ------------------------------------------------------------------------- */
+@media (min-width: 1280px) {
+  /* 中栏撑满：去掉默认主题 scoped 的 47rem/43rem 上限 */
+  .VPDoc .container {
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+  .VPDoc .content {
+    max-width: 100% !important;
+  }
+  .VPDoc .content-container {
+    max-width: 100% !important;
+  }
+
+  /* 右栏固定宽（覆盖默认绝对定位宽）。中栏不做 padding-right 让位——
+   * 内容向右撑满，大纲浮在右缘（不需要时可点「大纲」收起） */
+  html.ln-aside-open .VPDoc .aside {
+    width: var(--ln-aside-w) !important;
+  }
+}
+
+:root {
+  --ln-sidebar-w: var(--vp-sidebar-width, 17rem); /* 左栏宽 = 侧栏宽 */
+  --ln-aside-w: 18rem;                            /* 右栏宽（大纲） */
+}
+
+/* ---------------------------------------------------------------------------
+ * 左栏（VPSidebar）：钉死宽度 + 内容居左
+ * 默认主题 ≥1440px 会给侧栏加「居中留白」padding 并加宽它去吞留白
+ * （padding-left: max(2rem, (100% - layout-max)/2)，宽屏下可达数百 px），
+ * 导致菜单条目悬在中间。这里钉死：宽度 = 侧栏宽、padding 固定、始终居左。
+ * ------------------------------------------------------------------------- */
+@media (min-width: 960px) {
+  .VPSidebar {
+    width: var(--ln-sidebar-w) !important;
+    padding-left: 24px !important;
+    padding-right: 1.25rem !important;
+    transition: transform 0.25s ease, opacity 0.25s ease, visibility 0.25s !important;
+  }
+
+  /* 面板开关按钮：文档流布局，margin-right:auto 把它推到 content-body
+   * 最左（紧贴标题），其余导航内容（菜单等）保持靠右。收起/展开侧栏
+   * 时按钮位置恒定不动（用户要求：固定即可，不要跟着滑） */
+  .VPNavBar .ln-nav-toggles {
+    margin-left: 16px;
+    margin-right: auto;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * 顶栏（VPNavBar）：标题槽位收窄 + 背景条跟随侧栏
+ * 默认主题给 .title 预留「侧栏宽」的槽位（min/max-width = sidebar-width - 2rem），
+ * 标题文字只占一小段，槽位把后面的导航内容推出去很远——按钮跟着悬空中段。
+ * 这里把槽位收窄到内容宽：标题多宽占多宽，按钮紧随其后。
+ * ------------------------------------------------------------------------- */
+@media (min-width: 960px) {
+  .VPNavBar .title {
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+  /* 背景条起点：默认侧栏宽；收起时 0。必须 !important——默认主题在
+     ≥1440px 有同权重的「居中补偿公式」媒体规则，会把它抢回去（导航背景
+     条与内容区就会在屏幕中间断开，不随屏幕撑开） */
+  .VPNavBar.has-sidebar {
+    --vp-nav-col-offset: var(--ln-sidebar-w) !important;
+  }
+  html.ln-sidebar-collapsed .VPNavBar.has-sidebar {
+    --vp-nav-col-offset: 0px !important;
+  }
+  .VPNavBar:before {
+    transition: left 0.25s ease, background-color 0.25s;
+  }
+}
+
+@media (min-width: 1280px) {
+  /* 顶栏吃满：解开封顶与居中，只留对称边距 */
+  .VPNavBar .wrapper {
+    max-width: 100% !important;
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+  .VPNavBar .container {
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * 内容区（≥1440px）：侧栏已钉死为固定宽，这里把默认主题的「居中留白」
+ * padding 公式改回纯侧栏宽；右侧居中留白解开，内容向右撑满。
+ * 侧栏收起归零由库样式（styles.css）的折叠规则负责。
+ * ------------------------------------------------------------------------- */
+@media (min-width: 90rem) {
+  .VPContent.has-sidebar {
+    padding-left: var(--ln-sidebar-w) !important;
+    padding-right: 0 !important;
+  }
+}

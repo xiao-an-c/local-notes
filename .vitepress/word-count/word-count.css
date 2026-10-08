@@ -1,0 +1,44 @@
+/**
+ * 字计数徽标样式（配合 .vitepress/word-count/index.ts 注入的 HTML）。
+ * 由 .vitepress/theme/index.ts import 进站点样式，随主题一起打包。
+ *
+ * 只吃 VitePress 自己的 CSS 变量，所以亮/暗色自动跟随，不写死颜色。
+ */
+.ln-wordcount {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  /* 与标题保持正常间距（不再上提贴靠），下方留出呼吸空间 */
+  margin: 0.25rem 0 1.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--vp-c-text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.ln-wordcount__item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.ln-wordcount__label {
+  color: var(--vp-c-text-3);
+}
+
+.ln-wordcount__value {
+  font-weight: 600;
+  color: var(--vp-c-text-1);
+}
+
+.ln-wordcount__sep {
+  color: var(--vp-c-divider);
+}
+
+/* 打印（纸书审读稿）时保留徽标，但去掉悬停提示依赖的样式抖动 */
+@media print {
+  .ln-wordcount {
+    margin-bottom: 1rem;
+  }
+}
