@@ -1,8 +1,21 @@
 {
   "name": "local-notes",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "description": "把本地 Markdown 笔记库（vault）发布为可在线编辑的 VitePress 站点：Monaco 编辑、思维导图、知识图谱、双链反链、PDF/附件预览。对笔记目录结构零假设。",
+  "keywords": [
+    "vitepress",
+    "vitepress-theme",
+    "markdown",
+    "obsidian",
+    "notes",
+    "knowledge-graph",
+    "backlinks",
+    "mindmap",
+    "pdf-viewer",
+    "monaco-editor"
+  ],
+  "author": "xiao-an-c",
   "license": "MIT",
   "repository": {
     "type": "git",
