@@ -3,8 +3,8 @@
  * tts.mjs — 把 vault 里的 Markdown 笔记转成 MP3，并在笔记里嵌入播放器。
  *
  * 用法：
- *   node tools/tts.mjs site/**/*.md
- *   node tools/tts.mjs site/guides/templates.md --dry
+ *   node tools/tts.mjs demo/site/**/*.md
+ *   node tools/tts.mjs demo/site/guides/templates.md --dry
  *   node tools/tts.mjs notes/xxx.md --voice zh-CN-YunjianNeural --rate=-10%
  *
  * 依赖：edge-tts（pip install edge-tts，免费、无需 key）、ffmpeg

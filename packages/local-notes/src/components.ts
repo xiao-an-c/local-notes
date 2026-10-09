@@ -17,4 +17,4 @@ export {
   NewNoteDialog,
   PdfViewer,
   VaultFileViewer,
-} from "./components/index";
+} from "./components/index.ts";

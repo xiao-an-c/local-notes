@@ -2,7 +2,7 @@ import {
   resolveLocalNotesThemeOptions,
   type LocalNotesThemeOptions,
   type ResolvedLocalNotesThemeOptions,
-} from "../options";
+} from "../options.ts";
 
 /**
  * 主题（客户端）配置的模块级存取。

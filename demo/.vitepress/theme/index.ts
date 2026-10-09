@@ -1,10 +1,10 @@
 // ⭐ 接入点 2/2：主题入口——extends VitePress 默认主题并挂载
 // 「编辑此页」/「＋ 新建笔记」/ 全局编辑器 / 反链面板 / 图谱页画布，
 // 全局注册 <PdfViewer> / <MindMap> / <VaultFileViewer> / <HtmlView> 供
-// Markdown 直接使用。源码直用：相对导入 packages/local-notes/src，
-// 无 dist、无包依赖；改源码即时生效。
-import { localNotesTheme } from "../../packages/local-notes/src/theme/index.ts";
-import "../../packages/local-notes/src/theme/styles.css";
+// Markdown 直接使用。经 pnpm workspace 链接消费 "local-notes/theme"
+// （symlink 指回 packages/local-notes 源码，无 dist）；改库源码即时生效，
+// 库样式随主题入口自动加载。
+import { localNotesTheme } from "local-notes/theme";
 // 站点自定义样式：三栏布局 / 大纲开关 / 侧栏滑动，必须排在库样式之后
 import "./custom.css";
 // 字计数徽标样式（徽标 HTML 由 .vitepress/word-count/index.ts 在构建期注入）

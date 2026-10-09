@@ -3,24 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "基于 local-notes 源码直用的本地 Markdown 文档站",
+  "description": "local-notes monorepo：packages/local-notes = VitePress 主题包，demo/ = 主题的 demo 站（本仓库笔记站本体）",
   "scripts": {
-    "dev": "vitepress dev",
-    "build": "vitepress build",
-    "preview": "vitepress preview",
-    "wordcount": "node tools/wordcount.ts"
-  },
-  "dependencies": {
-    "force-graph": "^1.51.4",
-    "mermaid": "^12.1.0",
-    "monaco-editor": "^0.56.0",
-    "simple-mind-map": "0.14.0-fix.3"
-  },
-  "devDependencies": {
-    "@nolebase/markdown-it-bi-directional-links": "^2.18.2",
-    "markdown-it": "^14.3.0",
-    "vitepress": "2.0.0-alpha.20",
-    "vitepress-sidebar": "^1.40.0",
-    "vue": "^3.5.41"
+    "dev": "pnpm -C demo dev",
+    "build": "pnpm -C demo build",
+    "preview": "pnpm -C demo preview",
+    "wordcount": "pnpm -C demo wordcount"
   }
 }

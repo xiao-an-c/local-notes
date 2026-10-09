@@ -3,9 +3,9 @@ import path from "node:path";
 import type MarkdownIt from "markdown-it";
 import type StateCore from "markdown-it/lib/rules_core/state_core.mjs";
 import type StateInline from "markdown-it/lib/rules_inline/state_inline.mjs";
-import type { LocalNotesOptions } from "../options";
-import { resolveLocalNotesOptions } from "../options";
-import { collectAssets } from "./vaultAsset";
+import type { LocalNotesOptions } from "../options.ts";
+import { resolveLocalNotesOptions } from "../options.ts";
+import { collectAssets } from "./vaultAsset.ts";
 
 /** markdown-it 插件形态（与 `md.use(...)` 兼容） */
 export type MarkdownItPlugin = (md: MarkdownIt) => void;

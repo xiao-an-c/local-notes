@@ -1,7 +1,7 @@
 // 事件名常量取自 ../options（双端共享模块）——不能从 ../plugins/autoRestart
 // 导入：那是 node 侧插件文件（import node:fs），客户端导入会在 vite dev 下把
 // node 内建模块拖进浏览器模块图，运行即抛 externalized 错误（详见 options.ts）。
-import { RESTART_PENDING_EVENT } from "../options";
+import { RESTART_PENDING_EVENT } from "../options.ts";
 
 /**
  * dev 重启桥：vault 笔记增删 → autoRestart 插件 touch 配置 → VitePress restart

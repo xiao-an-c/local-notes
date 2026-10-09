@@ -1,9 +1,9 @@
 import path from "node:path";
 import { utimesSync, watch } from "node:fs";
 import type { Plugin } from "vite";
-import type { LocalNotesOptions } from "../options";
-import { RESTART_PENDING_EVENT, resolveLocalNotesOptions } from "../options";
-import { isSelfRecentWrite } from "./selfWrite";
+import type { LocalNotesOptions } from "../options.ts";
+import { RESTART_PENDING_EVENT, resolveLocalNotesOptions } from "../options.ts";
+import { isSelfRecentWrite } from "./selfWrite.ts";
 
 /**
  * 重启预告事件名常量本体在 ../options（双端共享模块，原因见该处文档）。

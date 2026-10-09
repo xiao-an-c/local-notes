@@ -2,9 +2,9 @@ import fs from "node:fs";
 import path from "node:path";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Plugin } from "vite";
-import type { LocalNotesOptions } from "../options";
-import { resolveLocalNotesOptions } from "../options";
-import { trackSelfWrite } from "./selfWrite";
+import type { LocalNotesOptions } from "../options.ts";
+import { resolveLocalNotesOptions } from "../options.ts";
+import { trackSelfWrite } from "./selfWrite.ts";
 
 /**
  * vault markdown 读写/新建 API（仅 dev 生效，apply: "serve"）

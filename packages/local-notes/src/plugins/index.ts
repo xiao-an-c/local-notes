@@ -1,22 +1,22 @@
 import type { Plugin } from "vite";
-import type { LocalNotesOptions } from "../options";
-import { backlinksPlugin } from "./backlinks";
-import { vaultMdAutoRestart } from "./autoRestart";
-import { mdApiPlugin } from "./mdApi";
-import { mindmapApiPlugin } from "./mindmapApi";
-import { pdfEmbedPlugin, type MarkdownItPlugin } from "./markdown";
-import { mergeVaultAssetSidebar, type SidebarItem } from "./sidebar";
-import { vaultAssetCopyPlugin, vaultAssetPlugin } from "./vaultAsset";
-import { vueHmrGuardPlugin } from "./vueHmrGuard";
+import type { LocalNotesOptions } from "../options.ts";
+import { backlinksPlugin } from "./backlinks.ts";
+import { vaultMdAutoRestart } from "./autoRestart.ts";
+import { mdApiPlugin } from "./mdApi.ts";
+import { mindmapApiPlugin } from "./mindmapApi.ts";
+import { pdfEmbedPlugin, type MarkdownItPlugin } from "./markdown.ts";
+import { mergeVaultAssetSidebar, type SidebarItem } from "./sidebar.ts";
+import { vaultAssetCopyPlugin, vaultAssetPlugin } from "./vaultAsset.ts";
+import { vueHmrGuardPlugin } from "./vueHmrGuard.ts";
 
-export { backlinksPlugin } from "./backlinks";
-export { vaultMdAutoRestart } from "./autoRestart";
-export { mdApiPlugin } from "./mdApi";
-export { mindmapApiPlugin } from "./mindmapApi";
-export { pdfEmbedPlugin, type MarkdownItPlugin } from "./markdown";
-export { mergeVaultAssetSidebar, type SidebarItem } from "./sidebar";
-export { vaultAssetPlugin, vaultAssetCopyPlugin } from "./vaultAsset";
-export { vueHmrGuardPlugin } from "./vueHmrGuard";
+export { backlinksPlugin } from "./backlinks.ts";
+export { vaultMdAutoRestart } from "./autoRestart.ts";
+export { mdApiPlugin } from "./mdApi.ts";
+export { mindmapApiPlugin } from "./mindmapApi.ts";
+export { pdfEmbedPlugin, type MarkdownItPlugin } from "./markdown.ts";
+export { mergeVaultAssetSidebar, type SidebarItem } from "./sidebar.ts";
+export { vaultAssetPlugin, vaultAssetCopyPlugin } from "./vaultAsset.ts";
+export { vueHmrGuardPlugin } from "./vueHmrGuard.ts";
 
 /**
  * 组合入口：一次装齐全部 local-notes vite 插件（含 dev 服务与 build 增强）。

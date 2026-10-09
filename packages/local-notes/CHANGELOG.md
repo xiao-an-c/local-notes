@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **`withLocalNotes()` site config composer** (node side, exported from `.`):
+  wraps a VitePress `UserConfig` with the full node-side wiring — vite plugin
+  group, markdown-it plugins, folder-as-menu sidebar generation (with asset
+  merge), `srcExclude` for `templateDir`, `ignoreDeadLinks`, plus auto-probed
+  `outDir`/`configPath` for the dev auto-restart plugin.
+
+### Changed
+
+- **Package form**: the library is now a pnpm workspace package
+  (`packages/local-notes`) consumed by the demo site via the `local-notes`
+  package name instead of relative source imports. Ships source directly
+  through `exports` (`.` / `./theme` / `./components` / `./style.css`);
+  all relative imports inside `src/` now carry explicit `.ts`/`/index.ts`
+  extensions so the package loads under Node's strict ESM resolution.
+- `markdown-it` and `vitepress-sidebar` moved from consumer-side to package
+  dependencies; `vite`/`markdown-it` are no longer peers (vite imports are
+  type-only).
+
 ## [0.1.0] - 2026-09-11
 
 Initial release. Publish a local Markdown vault as a VitePress site with

@@ -11,13 +11,13 @@
  * 编辑器组件依赖主题配置（apiBase/assetPrefix 等），建议经 localNotesTheme()
  * 组装使用（组件单独使用时取全默认值）。
  */
-export { Backlinks, type BacklinksComponent, type BacklinksProps } from "./Backlinks";
-export { EditThisPage, type EditThisPageComponent } from "./EditThisPage";
-export { Graph, type GraphComponent, type GraphProps } from "./Graph";
-export { HtmlView, type HtmlViewComponent, type HtmlViewProps } from "./HtmlView";
-export { MarkdownEditor, type MarkdownEditorComponent, type MarkdownEditorEmits, type MarkdownEditorProps } from "./MarkdownEditor";
-export { MindMap, type MindMapComponent, type MindMapProps } from "./MindMap";
-export { NavBarNewNote, type NavBarNewNoteComponent } from "./NavBarNewNote";
-export { NewNoteDialog, type NewNoteDialogComponent } from "./NewNoteDialog";
-export { PdfViewer, type PdfViewerComponent, type PdfViewerProps } from "./PdfViewer";
-export { VaultFileViewer, type VaultFileViewerComponent, type VaultFileViewerProps } from "./VaultFileViewer";
+export { Backlinks, type BacklinksComponent, type BacklinksProps } from "./Backlinks.ts";
+export { EditThisPage, type EditThisPageComponent } from "./EditThisPage.ts";
+export { Graph, type GraphComponent, type GraphProps } from "./Graph.ts";
+export { HtmlView, type HtmlViewComponent, type HtmlViewProps } from "./HtmlView.ts";
+export { MarkdownEditor, type MarkdownEditorComponent, type MarkdownEditorEmits, type MarkdownEditorProps } from "./MarkdownEditor.ts";
+export { MindMap, type MindMapComponent, type MindMapProps } from "./MindMap.ts";
+export { NavBarNewNote, type NavBarNewNoteComponent } from "./NavBarNewNote.ts";
+export { NewNoteDialog, type NewNoteDialogComponent } from "./NewNoteDialog.ts";
+export { PdfViewer, type PdfViewerComponent, type PdfViewerProps } from "./PdfViewer.ts";
+export { VaultFileViewer, type VaultFileViewerComponent, type VaultFileViewerProps } from "./VaultFileViewer.ts";

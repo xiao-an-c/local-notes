@@ -2,8 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Plugin } from "vite";
-import type { LocalNotesOptions } from "../options";
-import { resolveLocalNotesOptions } from "../options";
+import type { LocalNotesOptions } from "../options.ts";
+import { resolveLocalNotesOptions } from "../options.ts";
 
 /**
  * vault 静态资源服务插件

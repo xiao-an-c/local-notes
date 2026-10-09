@@ -1,7 +1,7 @@
 import path from "node:path";
-import type { LocalNotesOptions } from "../options";
-import { resolveLocalNotesOptions } from "../options";
-import { collectAssets } from "./vaultAsset";
+import type { LocalNotesOptions } from "../options.ts";
+import { resolveLocalNotesOptions } from "../options.ts";
+import { collectAssets } from "./vaultAsset.ts";
 
 /**
  * 侧边栏条目结构（与 VitePress DefaultTheme.SidebarItem 结构兼容，

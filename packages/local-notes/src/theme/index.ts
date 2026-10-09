@@ -2,8 +2,8 @@ import { h, computed } from "vue";
 import { useData } from "vitepress";
 import type { Theme } from "vitepress";
 import DefaultTheme from "vitepress/theme";
-import type { LocalNotesThemeOptions } from "../options";
-import { getLocalNotesThemeConfig, setLocalNotesThemeConfig } from "./config";
+import type { LocalNotesThemeOptions } from "../options.ts";
+import { getLocalNotesThemeConfig, setLocalNotesThemeConfig } from "./config.ts";
 import EditThisPage from "../components/edit/EditThisPage.vue";
 import NavBarNewNote from "../components/edit/NavBarNewNote.vue";
 import NewNoteDialog from "../components/edit/NewNoteDialog.vue";
@@ -15,13 +15,13 @@ import PdfViewer from "../components/PdfViewer.vue";
 import HtmlView from "../components/HtmlView.vue";
 import LayoutPanelsToggle from "../components/LayoutPanelsToggle.vue";
 import VaultFileViewer from "../components/VaultFileViewer.vue";
-import { closeMdEditor, mdEditorState } from "../components/edit/mdEditorStore";
-import { setupRestartBridge } from "./restartBridge";
+import { closeMdEditor, mdEditorState } from "../components/edit/mdEditorStore.ts";
+import { setupRestartBridge } from "./restartBridge.ts";
 // 组件相关全局样式（随主题入口进入 dist/style.css；站点亦可显式 import "local-notes/style.css"）
 import "./styles.css";
 
-export type { LocalNotesThemeOptions } from "../options";
-export { getLocalNotesThemeConfig } from "./config";
+export type { LocalNotesThemeOptions } from "../options.ts";
+export { getLocalNotesThemeConfig } from "./config.ts";
 
 /**
  * local-notes 主题入口——L3 全量挂载（编辑模式 + 思维导图 + 图谱 +

@@ -1,0 +1,44 @@
+{
+  "name": "local-notes",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "把本地 Markdown 笔记库（vault）发布为可在线编辑的 VitePress 站点：Monaco 编辑、思维导图、知识图谱、双链反链、PDF/附件预览。对笔记目录结构零假设。",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiao-an-c/notes.git",
+    "directory": "packages/local-notes"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./theme": "./src/theme/index.ts",
+    "./components": "./src/components.ts",
+    "./style.css": "./src/theme/styles.css"
+  },
+  "main": "./src/index.ts",
+  "files": [
+    "src",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "dependencies": {
+    "force-graph": "^1.51.4",
+    "markdown-it": "^14.3.0",
+    "monaco-editor": "^0.56.0",
+    "simple-mind-map": "0.14.0-fix.3",
+    "vitepress-sidebar": "^1.40.0"
+  },
+  "peerDependencies": {
+    "vitepress": ">=2.0.0-alpha.20 <3",
+    "vue": "^3.5.0"
+  },
+  "devDependencies": {
+    "vite": "^8.2.1",
+    "vitepress": "2.0.0-alpha.20",
+    "vue": "^3.5.41"
+  }
+}

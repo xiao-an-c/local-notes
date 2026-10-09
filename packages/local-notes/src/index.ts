@@ -5,8 +5,9 @@
  *
  * ## 三入口说明
  *
- * - `"."`（本文件）：vite 插件 / markdown-it 插件 / 配置类型。
- *   纯 node 侧代码，可被站点 `.vitepress/config.mts` 直接引入。
+ * - `"."`（本文件）：vite 插件 / markdown-it 插件 / 站点配置组合入口
+ *   `withLocalNotes()` / 配置类型。纯 node 侧代码，可被站点
+ *   `.vitepress/config.mts` 直接引入。
  * - `"local-notes/components"`：组件导出（编辑全家桶 + 思维导图等）。
  *   组件依赖 vitepress 的客户端运行时（useData）与样式副作用，只能在
  *   站点客户端管线（.vitepress/theme/*、.vue 文件）中引入——vitepress
@@ -32,7 +33,13 @@ export {
   vueHmrGuardPlugin,
   type MarkdownItPlugin,
   type SidebarItem,
-} from "./plugins";
+} from "./plugins/index.ts";
+
+export {
+  withLocalNotes,
+  type LocalNotesSiteOptions,
+  type LocalNotesSidebarOptions,
+} from "./config.ts";
 
 export {
   DEFAULT_API_BASE,
@@ -47,4 +54,4 @@ export {
   type LocalNotesThemeOptions,
   type ResolvedLocalNotesOptions,
   type ResolvedLocalNotesThemeOptions,
-} from "./options";
+} from "./options.ts";

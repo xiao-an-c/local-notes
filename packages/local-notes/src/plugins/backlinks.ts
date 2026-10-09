@@ -1,8 +1,8 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { basename, join, relative, resolve } from "node:path";
 import type { Plugin } from "vite";
-import type { LocalNotesOptions } from "../options";
-import { resolveLocalNotesOptions } from "../options";
+import type { LocalNotesOptions } from "../options.ts";
+import { resolveLocalNotesOptions } from "../options.ts";
 
 /**
  * 双链反向链接索引插件（vite 虚拟模块，进入 vite.plugins）

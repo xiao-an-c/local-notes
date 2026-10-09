@@ -6,9 +6,9 @@ Monaco 在线编辑、思维导图、知识图谱、双链与反链、PDF/附件
 **对笔记目录结构零假设。**
 
 - 许可：[MIT](./LICENSE) —— Copyright (c) 2026 xiao-an-c
-- 仓库：<https://github.com/xiao-an-c/local-notes>
-- 状态：v0.1.0 —— 下列功能全部实现，并由内置的 demo 笔记库
-  （[`demo/`](./demo)）实际跑通
+- 仓库：<https://github.com/xiao-an-c/notes>（monorepo：本包在
+  `packages/local-notes/`，demo 站在仓库根 [`demo/`](../../demo)）
+- 状态：v0.1.0 —— 下列功能全部实现，并由 demo 笔记库实际跑通
 - 语言说明：本文档以中文为主；库内代码注释为中文，`demo/` 是可运行的活样例。
 
 ## 为什么做这个
@@ -35,25 +35,40 @@ Obsidian 笔记库，还是就是一堆文档文件夹。静态站点生成器�
 
 ## 快速开始
 
-最快的办法是把内置 demo 复制走：**[`packages/local-notes/demo/`](./demo)**
-就是一个完整可跑的站点，它的笔记库只是几个普通目录（`notes/`、`journal/`、
-`projects/`、`templates/`、`assets/`）。它的 `.vitepress/config.mts` +
-`.vitepress/theme/index.ts` 就是下面所有内容的活版本。
+最快的办法是把 demo 复制走：仓库根的 **[`demo/`](../../demo)** 就是一个完整
+可跑的站点。它的 `demo/.vitepress/config.mts` + `demo/.vitepress/theme/index.ts`
+就是下面所有内容的活版本（monorepo 里它经 `"local-notes": "workspace:*"`
+消费本包；独立使用时先 `pnpm add -D local-notes`）。
 
-```sh
-pnpm add -D local-notes
+```ts
+// .vitepress/config.mts —— 推荐路径：withLocalNotes 一站式接线
+import { withLocalNotes } from "local-notes";
+
+export default withLocalNotes(
+  {
+    vaultDir: "../notes",          // 笔记库根（缺省 <cwd>/site）
+    templateDir: "templates",      // 新建笔记模板目录（可选）
+  },
+  { title: "My Notes" },           // 普通 VitePress 配置，优先生效
+);
 ```
+
+`withLocalNotes` 负责装齐 vite 插件组、markdown-it 插件、侧栏生成
+（文件夹结构即菜单 + 附件合并）、`srcExclude`、`ignoreDeadLinks`，并自动探测
+`outDir` 与 `configPath`（dev 自动重启需要）。
 
 依赖分成两组（刻意为之）：
 
 | 组 | 包 | 原因 |
 | --- | --- | --- |
-| `peerDependencies` | `vitepress ^2.0.0-alpha.20`、`vite ^8`、`vue ^3.5`、`markdown-it ^14` | VitePress 站点本来就有它们；用 peer 保证全局只有一份实例 |
-| `dependencies` | `simple-mind-map`、`monaco-editor`、`force-graph` | 这些是又重又专属的库，你平时不会为了别的事装它们——由本库自带，装完即可用 |
+| `peerDependencies` | `vitepress >=2.0.0-alpha.20 <3`、`vue ^3.5` | VitePress 站点本来就有它们；用 peer 保证全局只有一份实例（双份会让 `useData` 上下文断裂） |
+| `dependencies` | `simple-mind-map`、`monaco-editor`、`force-graph`、`markdown-it`、`vitepress-sidebar` | 又重又专属的库与配置期工具，由本库自带，装完即可用 |
 
-**接入点 1/2 —— `.vitepress/config.mts`**（取自 demo，逐字）：
+<details>
+<summary><strong>接入点 1/2 手动接线</strong>——<code>withLocalNotes</code> 的底层等价 API（想自己控制合并细节时用）</summary>
 
 ```ts
+// .vitepress/config.mts（手动形态）
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitepress";
 import { BiDirectionalLinks } from "@nolebase/markdown-it-bi-directional-links";
@@ -114,6 +129,8 @@ export default defineConfig({
   },
 });
 ```
+
+</details>
 
 **接入点 2/2 —— `.vitepress/theme/index.ts`**（取自 demo，逐字）：
 
@@ -213,17 +230,21 @@ pnpm build      # 静态产物，完全可读，编辑能力自动隐藏
 - 笔记库从不被复制用于编辑：dev API 直接写原始文件；构建只把**附件**
   （PDF/EPUB/思维导图 JSON）拷进 `outDir`。
 
-## 开发
+## 开发（monorepo）
+
+本包住在 [notes monorepo](https://github.com/xiao-an-c/notes) 的
+`packages/local-notes/`，demo 站（workspace 消费者）在仓库根 `demo/`。
+源码直发形态（`exports` 指向 `src/*.ts`，无 dist），demo 经 pnpm workspace
+symlink 直接编译库源码：
 
 ```sh
-pnpm --filter local-notes build       # vite lib 模式 → dist/（ESM，3 个入口 + .d.ts + style.css）
-pnpm --filter local-notes typecheck   # tsc --noEmit
-pnpm --filter local-notes smoke       # node 侧导出面 + dev API 行为探针
-cd packages/local-notes/demo
-pnpm dev                              # 跑 demo 站点（编辑能力开启）
-node api-selftest.mjs                 # 19 条断言的 dev API 自测（自清理）
-pnpm build                            # demo 静态构建（只读降级）
+pnpm install                            # 仓库根（沙箱环境可加 --store-dir .pnpm-store）
+pnpm -C demo dev                        # 跑 demo 站（本仓库 demo 为纯阅读模式）
+pnpm -C demo build                      # demo 静态构建（只读降级）
 ```
+
+改 `src/` 源码保存即生效。发布到 npm 时 `files: ["src", …]` 随包带源码，
+消费端 vite 管线负责编译（`.vue`/TS/`?worker` 均无需额外配置）。
 
 ## 许可
 

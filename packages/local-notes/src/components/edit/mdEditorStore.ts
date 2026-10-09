@@ -10,7 +10,7 @@
  * 对话框视图（NewNoteDialog.vue）同挂 layout-bottom，模式与编辑器一致。
  */
 import { reactive } from "vue";
-import { getLocalNotesThemeConfig } from "../../theme/config";
+import { getLocalNotesThemeConfig } from "../../theme/config.ts";
 
 export const mdEditorState = reactive({
   /** 编辑视图是否打开 */

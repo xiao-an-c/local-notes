@@ -6,9 +6,9 @@ node_modules/
 .tts-env/
 .tts-work/
 
-# VitePress 缓存与静态构建产物
-.vitepress/cache/
-.vitepress/dist/
+# VitePress 缓存与静态构建产物（任何 workspace 包内）
+**/.vitepress/cache/
+**/.vitepress/dist/
 
 # macOS / 编辑器 / 日志
 .DS_Store
@@ -18,6 +18,5 @@ node_modules/
 # DSH 会话缓存（本地工具，不入库）
 .dsh-mattskillsdeck-cache/
 
-# lock 文件
+# lock：monorepo 依赖树复杂，pnpm-lock.yaml 入库保证可复现
 package-lock.json
-pnpm-lock.yaml

@@ -1,0 +1,22 @@
+{
+  "name": "demo",
+  "private": true,
+  "type": "module",
+  "description": "local-notes 主题 demo 站（纯阅读模式）：vault = demo/site，站点层扩展（Mermaid/CardGrid/字数徽标）在此示范",
+  "scripts": {
+    "dev": "vitepress dev --host 0.0.0.0",
+    "build": "vitepress build",
+    "preview": "vitepress preview",
+    "wordcount": "node tools/wordcount.ts"
+  },
+  "dependencies": {
+    "@nolebase/markdown-it-bi-directional-links": "^2.18.2",
+    "local-notes": "workspace:*",
+    "markdown-it": "^14.3.0",
+    "mermaid": "^12.1.0"
+  },
+  "devDependencies": {
+    "vitepress": "2.0.0-alpha.20",
+    "vue": "^3.5.41"
+  }
+}

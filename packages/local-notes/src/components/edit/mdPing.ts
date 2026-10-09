@@ -8,7 +8,7 @@
  * 缓存 Promise 而非结果：同一次页面会话内所有入口共享同一次探测请求，
  * 路由间不重复发；dev→build 切换是整页刷新，模块级缓存自然失效，无需额外逻辑。
  */
-import { getLocalNotesThemeConfig, joinApi } from "../../theme/config";
+import { getLocalNotesThemeConfig, joinApi } from "../../theme/config.ts";
 
 let pingPromise: Promise<boolean> | null = null;
 

@@ -1,0 +1,5 @@
+packages:
+  # 主题包（产品）：VitePress theme + vite/markdown-it 插件 + 组件
+  - packages/*
+  # demo 站（主题的标准消费者示范 = 本仓库的笔记站本体）
+  - demo
