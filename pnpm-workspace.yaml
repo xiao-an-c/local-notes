@@ -3,3 +3,6 @@ packages:
   - packages/*
   # demo 站（主题的标准消费者示范 = 本仓库的笔记站本体）
   - demo
+allowBuilds:
+  # esbuild 的 postinstall 只做平台二进制校验（真实二进制经可选依赖分发）
+  esbuild: true

@@ -25,6 +25,7 @@ export {
   localNotesPlugins,
   mdApiPlugin,
   mergeVaultAssetSidebar,
+  mermaidFencePlugin,
   mindmapApiPlugin,
   pdfEmbedPlugin,
   vaultAssetCopyPlugin,

@@ -1,6 +1,6 @@
 {
   "name": "local-notes",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "description": "把本地 Markdown 笔记库（vault）发布为可在线编辑的 VitePress 站点：Monaco 编辑、思维导图、知识图谱、双链反链、PDF/附件预览。对笔记目录结构零假设。",
   "keywords": [
@@ -23,13 +23,15 @@
     "directory": "packages/local-notes"
   },
   "exports": {
-    ".": "./src/index.ts",
+    ".": "./dist/index.js",
     "./theme": "./src/theme/index.ts",
     "./components": "./src/components.ts",
-    "./style.css": "./src/theme/styles.css"
+    "./style.css": "./src/theme/styles.css",
+    "./package.json": "./package.json"
   },
-  "main": "./src/index.ts",
+  "main": "./dist/index.js",
   "files": [
+    "dist",
     "src",
     "README.md",
     "CHANGELOG.md",
@@ -38,10 +40,14 @@
   "sideEffects": [
     "**/*.css"
   ],
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --packages=external --outfile=dist/index.js",
+    "prepublishOnly": "pnpm build"
+  },
   "dependencies": {
-    "mermaid": "^12.1.0",
     "force-graph": "^1.51.4",
     "markdown-it": "^14.3.0",
+    "mermaid": "^12.1.0",
     "monaco-editor": "^0.56.0",
     "simple-mind-map": "0.14.0-fix.3",
     "vitepress-sidebar": "^1.40.0"
@@ -51,6 +57,7 @@
     "vue": "^3.5.0"
   },
   "devDependencies": {
+    "esbuild": "^0.28.2",
     "vite": "^8.2.1",
     "vitepress": "2.0.0-alpha.20",
     "vue": "^3.5.41"

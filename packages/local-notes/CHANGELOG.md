@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.3.0] - 2026-10-09
 
 ### Added
 
@@ -28,6 +28,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   longer squeeze the 18rem outline column. Sites no longer need a custom.css
   for the notes-site look; purely project-level beautification (typography,
   palette tweaks) still belongs to the site.
+- **Compiled node entry**: the `.` export now resolves to `dist/index.js`
+  (esbuild bundle, `vitepress`/`vitepress-sidebar` kept external) instead of
+  `src/index.ts`. Node refuses to strip types under `node_modules`
+  (ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING), so npm-installed copies of the
+  source-shipping entry could not be loaded by VitePress's native-ESM config
+  loader — a fresh `npm install` site was effectively unusable. Theme and
+  components stay source-shipped (vite's client pipeline compiles them).
+  Known trade-off: no bundled `.d.ts` yet (workspace/link consumers keep full
+  types from `src/`; npm consumers get plain JS until types ship).
+  Also added the `./package.json` export.
+- **Repository moved** to `VibingNotes/local-notes` (package.json `repository.url`
+  updated; npm page link takes effect with this release).
 
 ## [0.2.0] - 2026-10-09
 
