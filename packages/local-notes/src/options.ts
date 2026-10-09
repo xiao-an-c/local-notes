@@ -84,6 +84,11 @@ export interface LocalNotesOptions {
    * 默认 undefined = 由插件在 configResolved 时自动取 Vite 实际加载的 configFile。
    */
   configPath?: string;
+  /**
+   * 是否启用 ```mermaid 围栏渲染（mermaidFencePlugin → MermaidFence 组件），
+   * 默认 true。站点想换别的 mermaid 方案时置 false。
+   */
+  mermaid?: boolean;
 }
 
 /**
@@ -129,6 +134,7 @@ export interface ResolvedLocalNotesOptions {
   excludedPages: string[];
   outDir?: string;
   configPath?: string;
+  mermaid: boolean;
 }
 
 /** 填充默认值后的主题配置 */
@@ -162,6 +168,7 @@ export function resolveLocalNotesOptions(options: LocalNotesOptions): ResolvedLo
     excludedPages: options.excludedPages ?? [],
     outDir: options.outDir,
     configPath: options.configPath,
+    mermaid: options.mermaid ?? true,
   };
 }
 

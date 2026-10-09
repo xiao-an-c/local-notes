@@ -13,6 +13,8 @@ import Graph from "../components/Graph.vue";
 import Backlinks from "../components/Backlinks.vue";
 import PdfViewer from "../components/PdfViewer.vue";
 import HtmlView from "../components/HtmlView.vue";
+import Mermaid from "../components/Mermaid.vue";
+import MermaidFence from "../components/MermaidFence.vue";
 import LayoutPanelsToggle from "../components/LayoutPanelsToggle.vue";
 import VaultFileViewer from "../components/VaultFileViewer.vue";
 import { closeMdEditor, mdEditorState } from "../components/edit/mdEditorStore.ts";
@@ -43,8 +45,9 @@ export { getLocalNotesThemeConfig } from "./config.ts";
  *   对话框常驻渲染（默认隐藏，任意页面经顶栏按钮呼出；其挂载逻辑还承担
  *   「创建后 full reload 接棒跳转/自动进编辑」的消费者角色）
  *
- * enhanceApp 全局注册：PdfViewer / MindMap / VaultFileViewer——markdown
- * 正文与组件模板可直接写 `<PdfViewer src="..." />` 等标签；VaultFileViewer
+ * enhanceApp 全局注册：PdfViewer / MindMap / HtmlView / Mermaid /
+ * MermaidFence / VaultFileViewer——markdown 正文可直接写
+ * `<PdfViewer src="..." />`、```mermaid 围栏等；VaultFileViewer
  * 由使用方在附件预览工程页（路由默认 /viewer）引用。
  *
  * 用法（站点 `.vitepress/theme/index.ts`）：
@@ -109,6 +112,10 @@ export function localNotesTheme(options: LocalNotesThemeOptions = {}): Theme {
       // 全局注册：markdown 正文可直接写 <HtmlView src="<assetPrefix>xxx.html" />，
       // iframe 渲染 vault 内自包含 HTML 研报（ECharts 交互正常）
       app.component("HtmlView", HtmlView);
+      // 全局注册：markdown 正文可直接写 <Mermaid code="flowchart TD..." />；
+      // ```mermaid 围栏由 mermaidFencePlugin 生成的 <MermaidFence> 占位承接
+      app.component("Mermaid", Mermaid);
+      app.component("MermaidFence", MermaidFence);
       // 附件预览页（viewerPath，默认 /viewer）：读取 hash 中的 vault 路径渲染 PdfViewer
       app.component("VaultFileViewer", VaultFileViewer);
       // dev 重启桥（仅 dev 生效，build 下整体摇树）：笔记增删触发 restart 后

@@ -12,6 +12,8 @@ export {
   Graph,
   HtmlView,
   MarkdownEditor,
+  Mermaid,
+  MermaidFence,
   MindMap,
   NavBarNewNote,
   NewNoteDialog,

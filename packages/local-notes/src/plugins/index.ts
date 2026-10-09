@@ -1,10 +1,12 @@
 import type { Plugin } from "vite";
 import type { LocalNotesOptions } from "../options.ts";
+import { resolveLocalNotesOptions } from "../options.ts";
 import { backlinksPlugin } from "./backlinks.ts";
 import { vaultMdAutoRestart } from "./autoRestart.ts";
 import { mdApiPlugin } from "./mdApi.ts";
 import { mindmapApiPlugin } from "./mindmapApi.ts";
 import { pdfEmbedPlugin, type MarkdownItPlugin } from "./markdown.ts";
+import { mermaidFencePlugin } from "./mermaidFence.ts";
 import { mergeVaultAssetSidebar, type SidebarItem } from "./sidebar.ts";
 import { vaultAssetCopyPlugin, vaultAssetPlugin } from "./vaultAsset.ts";
 import { vueHmrGuardPlugin } from "./vueHmrGuard.ts";
@@ -14,6 +16,7 @@ export { vaultMdAutoRestart } from "./autoRestart.ts";
 export { mdApiPlugin } from "./mdApi.ts";
 export { mindmapApiPlugin } from "./mindmapApi.ts";
 export { pdfEmbedPlugin, type MarkdownItPlugin } from "./markdown.ts";
+export { mermaidFencePlugin } from "./mermaidFence.ts";
 export { mergeVaultAssetSidebar, type SidebarItem } from "./sidebar.ts";
 export { vaultAssetPlugin, vaultAssetCopyPlugin } from "./vaultAsset.ts";
 export { vueHmrGuardPlugin } from "./vueHmrGuard.ts";
@@ -35,8 +38,8 @@ export { vueHmrGuardPlugin } from "./vueHmrGuard.ts";
  *
  * 另有几种**不进 vite.plugins** 的能力，按各自形态单独接入：
  * - markdown-it 插件 → localNotesMarkdownItPlugins(options)（次级组合入口）
- *   或独立 pdfEmbedPlugin(options)，装进 `markdown.config`，且须注册在
- *   双向链接插件之前；
+ *   或独立 pdfEmbedPlugin(options) / mermaidFencePlugin()，装进
+ *   `markdown.config`，且须注册在双向链接插件之前；
  * - 侧栏附件合并 → mergeVaultAssetSidebar(sidebar, options) 包住
  *   themeConfig.sidebar（纯数据加工，非插件）；
  * - 主题入口 → localNotesTheme(options)（"local-notes/theme"）。
@@ -61,6 +64,9 @@ export function localNotesPlugins(options: LocalNotesOptions): Plugin[] {
  * markdown-it 插件组合入口（次级）：返回 markdown-it 插件数组，
  * 逐个 `md.use(...)` 装进 VitePress `markdown.config`。
  *
+ * 当前组成：pdfEmbedPlugin（PDF 链接内嵌预览）＋ mermaidFencePlugin
+ * （```mermaid 围栏 → 图表，`mermaid: false` 可关）。
+ *
  * 与 vite 插件组合入口 localNotesPlugins 形态不同——markdown-it 插件是
  * `(md) => void` 函数，不走 vite.plugins。注册顺序约定：数组整体须在
  * 双向链接插件（如 @nolebase/markdown-it-bi-directional-links）之前 use，
@@ -76,5 +82,8 @@ export function localNotesPlugins(options: LocalNotesOptions): Plugin[] {
  * ```
  */
 export function localNotesMarkdownItPlugins(options: LocalNotesOptions): MarkdownItPlugin[] {
-  return [pdfEmbedPlugin(options)];
+  const plugins: MarkdownItPlugin[] = [pdfEmbedPlugin(options)];
+  // ```mermaid 围栏渲染（mermaid: false 关闭——站点想自接别的 mermaid 方案时）
+  if (resolveLocalNotesOptions(options).mermaid) plugins.push(mermaidFencePlugin());
+  return plugins;
 }

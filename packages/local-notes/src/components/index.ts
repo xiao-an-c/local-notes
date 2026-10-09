@@ -16,6 +16,8 @@ export { EditThisPage, type EditThisPageComponent } from "./EditThisPage.ts";
 export { Graph, type GraphComponent, type GraphProps } from "./Graph.ts";
 export { HtmlView, type HtmlViewComponent, type HtmlViewProps } from "./HtmlView.ts";
 export { MarkdownEditor, type MarkdownEditorComponent, type MarkdownEditorEmits, type MarkdownEditorProps } from "./MarkdownEditor.ts";
+export { Mermaid, type MermaidComponent, type MermaidProps } from "./Mermaid.ts";
+export { MermaidFence, type MermaidFenceComponent, type MermaidFenceProps } from "./MermaidFence.ts";
 export { MindMap, type MindMapComponent, type MindMapProps } from "./MindMap.ts";
 export { NavBarNewNote, type NavBarNewNoteComponent } from "./NavBarNewNote.ts";
 export { NewNoteDialog, type NewNoteDialogComponent } from "./NewNoteDialog.ts";

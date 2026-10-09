@@ -20,8 +20,9 @@
  * - `ignoreDeadLinks: true`（vault 内 wikilink 允许指向尚未创建的页面）；
  * - `srcExclude` ← `${templateDir}/**`（若配置模板目录）＋ userConfig 的；
  * - `vite.plugins` ← localNotesPlugins(...) ＋ userConfig 的插件组；
- * - `markdown.config` ← 先注册库的 markdown-it 插件（PDF 自动内嵌，
- *   必须在双向链接插件之前），再调用 userConfig 自己的 markdown.config；
+ * - `markdown.config` ← 先注册库的 markdown-it 插件（PDF 自动内嵌 +
+ *   ```mermaid 围栏渲染，`mermaid: false` 可关；必须在双向链接插件之前），
+ *   再调用 userConfig 自己的 markdown.config；
  * - `themeConfig.sidebar` ← generateSidebar（文件夹结构即菜单，默认约定
  *   见 buildSidebar）＋ 附件合并 mergeVaultAssetSidebar；
  *   传 `sidebar: false` 可关掉，改用 userConfig.themeConfig.sidebar；
@@ -89,6 +90,7 @@ export function withLocalNotes(site: LocalNotesSiteOptions = {}, user: UserConfi
     excludedPages: site.excludedPages,
     outDir,
     configPath,
+    mermaid: site.mermaid,
   };
 
   // 模板目录是机器用的 md：不页面化（srcExclude）也不进菜单（侧栏排除）
