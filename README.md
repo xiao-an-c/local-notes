@@ -60,7 +60,7 @@ export default { ...localNotesTheme({ ... }), enhanceApp(ctx) { /* 注册 Mermai
 ## 站点能力
 
 - **双链与反链**：`[[wikilink]]` 渲染、每页自动反向链接面板、整页知识图谱（frontmatter `graph: true`）
-- **组件内嵌**：Markdown 正文直接写 `<HtmlView>`（自包含 HTML 报告）、`<MindMap>`（思维导图，dev 可在线编辑）、`<PdfViewer>`（PDF）——详见站点内 [使用指南](demo/site/guides/) 与 [内嵌组件](demo/site/guides/components.md)
+- **组件内嵌**：Markdown 正文直接写 `<HtmlView>`（自包含 HTML 报告）、`<MindMap>`（思维导图，dev 可在线编辑）、`<TaskBoard>`（任务看板：看板/表格/日历/统计 + 筛选，dev 可编辑写回 JSON）、`<PdfViewer>`（PDF）——详见站点内 [使用指南](demo/site/guides/) 与 [内嵌组件](demo/site/guides/components.md)
 - **附件预览**：vault 内 PDF/EPUB 链接自动指向 `/viewer` 预览页；build 产物同样可读
 - **字数徽标**：每页标题下显示汉字/字符/段落（口径与命令行 `pnpm wordcount` 一致）
 - **中文搜索**：Intl.Segmenter 词级分词，local search 可命中中文查询

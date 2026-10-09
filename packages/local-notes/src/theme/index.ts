@@ -9,6 +9,8 @@ import NavBarNewNote from "../components/edit/NavBarNewNote.vue";
 import NewNoteDialog from "../components/edit/NewNoteDialog.vue";
 import MarkdownEditor from "../components/MarkdownEditor.vue";
 import MindMap from "../components/MindMap.vue";
+import TaskBoard from "../components/TaskBoard.vue";
+import TaskBoardPage from "../components/TaskBoardPage.vue";
 import Graph from "../components/Graph.vue";
 import Backlinks from "../components/Backlinks.vue";
 import PdfViewer from "../components/PdfViewer.vue";
@@ -34,7 +36,8 @@ export { getLocalNotesThemeConfig } from "./config.ts";
  *
  * 插槽布局（与抽离前站点 theme/index.ts 实测一致）：
  * - doc-top：知识图谱页（frontmatter `graph: true`）正文区整页画布
- *   （Graph 组件，数据来自 backlinksPlugin 的 virtual:graph）；
+ *   （Graph 组件，数据来自 backlinksPlugin 的 virtual:graph）＋ 任务看板
+ *   整页（frontmatter `board: true` → TaskBoardPage，读 ?src= 渲染看板）；
  * - doc-before：「编辑此页」入口（content-container 内、标题上方、右对齐正文，
  *   避开右侧 aside 大纲；工程页组件内部自隐藏）
  * - nav-bar-content-before：「＋ 新建笔记」入口（顶栏 .content-body 最左、
@@ -73,9 +76,11 @@ export function localNotesTheme(options: LocalNotesThemeOptions = {}): Theme {
       const { page } = useData();
       // 知识图谱页（页面 frontmatter 标记 graph: true）：正文区整页渲染画布
       const isGraphPage = computed(() => page.value.frontmatter.graph === true);
+      // 任务看板整页（frontmatter `board: true`）：正文区整页渲染看板
+      const isBoardPage = computed(() => page.value.frontmatter.board === true);
       return h(DefaultTheme.Layout, null, {
         // 知识图谱页正文区整页画布（doc-top 在 VP2 的 .container 之外）
-        "doc-top": () => (isGraphPage.value ? h(Graph) : null),
+        "doc-top": () => (isGraphPage.value ? h(Graph) : isBoardPage.value ? h(TaskBoardPage) : null),
         // 「编辑此页」入口：放 doc-before（content-container 内、标题上方）。
         // enableEditThisPage: false 时整站不渲染该按钮（编辑器视图仍挂载，
         // 只是没有任何打开它的入口）
@@ -88,8 +93,8 @@ export function localNotesTheme(options: LocalNotesThemeOptions = {}): Theme {
             h(LayoutPanelsToggle),
             ...(cfg.enableNewNote ? [h(NavBarNewNote)] : []),
           ]),
-        // 反向链接面板：正文之后、页脚之前（图谱页除外——整页画布与面板互斥）
-        "doc-after": () => (!isGraphPage.value ? h(Backlinks) : null),
+        // 反向链接面板：正文之后、页脚之前（图谱/看板整页除外——整页视图与面板互斥）
+        "doc-after": () => (!isGraphPage.value && !isBoardPage.value ? h(Backlinks) : null),
         // 全局唯一 Markdown 编辑视图：挂在 Layout 底部跨路由持久，
         // 路由切换不打断编辑；全站同一时间只开一个（单例状态见 mdEditorStore）
         "layout-bottom": () =>
@@ -112,6 +117,9 @@ export function localNotesTheme(options: LocalNotesThemeOptions = {}): Theme {
       app.component("PdfViewer", PdfViewer);
       // 全局注册：markdown 正文可直接写 <MindMap src="<assetPrefix>xxx.mindmap.json" />
       app.component("MindMap", MindMap);
+      // 全局注册：markdown 正文可直接写 <TaskBoard src="<assetPrefix>xxx.taskboard.json" />，
+      // Tower 风格任务看板（看板/表格/日历/统计 + 筛选，dev 可编辑写回 JSON）
+      app.component("TaskBoard", TaskBoard);
       // 全局注册：markdown 正文可直接写 <HtmlView src="<assetPrefix>xxx.html" />，
       // iframe 渲染 vault 内自包含 HTML 研报（ECharts 交互正常）
       app.component("HtmlView", HtmlView);

@@ -18,5 +18,7 @@ export {
   NavBarNewNote,
   NewNoteDialog,
   PdfViewer,
+  TaskBoard,
+  TaskBoardPage,
   VaultFileViewer,
 } from "./components/index.ts";

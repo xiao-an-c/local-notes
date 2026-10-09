@@ -1,8 +1,8 @@
 {
   "name": "local-notes",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "module",
-  "description": "把本地 Markdown 笔记库（vault）发布为可在线编辑的 VitePress 站点：Monaco 编辑、思维导图、知识图谱、双链反链、PDF/附件预览。对笔记目录结构零假设。",
+  "description": "把本地 Markdown 笔记库（vault）发布为可在线编辑的 VitePress 站点：Monaco 编辑、思维导图、任务看板、知识图谱、双链反链、PDF/附件预览。对笔记目录结构零假设。",
   "keywords": [
     "vitepress",
     "vitepress-theme",
@@ -12,6 +12,8 @@
     "knowledge-graph",
     "backlinks",
     "mindmap",
+    "taskboard",
+    "kanban",
     "pdf-viewer",
     "monaco-editor"
   ],

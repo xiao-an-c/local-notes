@@ -32,9 +32,9 @@ export default withLocalNotes(
     // 新建笔记模板目录（相对 vault = site/templates）
     templateDir: "templates",
     sidebar: {
-      // 不进侧栏菜单的站点功能页：图谱页与附件预览页（页面保留、顶栏
-      // 「图谱」与附件链接可达，只是不算内容）
-      excludeByGlobPattern: ["graph.md", "viewer.md"],
+      // 不进侧栏菜单的站点功能页：图谱页、任务看板页与附件预览页（页面
+      // 保留、顶栏「图谱」「看板」与附件链接可达，只是不算内容）
+      excludeByGlobPattern: ["graph.md", "board.md", "viewer.md"],
       // 菜单顺序 = 文档阅读顺序（默认文件名字母序 ≠ 阅读顺序）。
       // manualSortFileNameByPriority 匹配裸文件名/目录名，每层目录生效：
       // 列表内的按此顺序置顶，未列的按字母序排其后
@@ -74,7 +74,7 @@ export default withLocalNotes(
         // 徽标；各内容子目录自己的 index.md 是正经内容页，照常显示。
         // 单页要关就在它的 frontmatter 写 wordCount: false。
         md.use(wordCountPlugin, {
-          exclude: ["index.md", "graph.md", "viewer.md"],
+          exclude: ["index.md", "graph.md", "board.md", "viewer.md"],
         });
       },
     },
@@ -83,6 +83,7 @@ export default withLocalNotes(
       nav: [
         { text: "首页", link: "/" },
         { text: "图谱", link: "/graph" },
+        { text: "看板", link: "/board?src=/vault/guides/assets/demo.taskboard.json" },
         { text: "使用指南", link: "/guides/" },
       ],
       // 侧栏主体由 withLocalNotes 生成（文件夹结构即菜单 + 附件合并），

@@ -1,0 +1,284 @@
+{
+  "title": "local-notes 3.0 研发看板（示例）",
+  "members": [
+    {
+      "id": "alice",
+      "name": "张小安",
+      "color": "#3b82f6"
+    },
+    {
+      "id": "bob",
+      "name": "李北岸",
+      "color": "#10b981"
+    },
+    {
+      "id": "carol",
+      "name": "王南屿",
+      "color": "#f59e0b"
+    },
+    {
+      "id": "dave",
+      "name": "陈西窗",
+      "color": "#8b5cf6"
+    }
+  ],
+  "statuses": [
+    {
+      "id": "todo",
+      "name": "待办",
+      "done": false
+    },
+    {
+      "id": "doing",
+      "name": "进行中",
+      "done": false
+    },
+    {
+      "id": "review",
+      "name": "评审中",
+      "done": false
+    },
+    {
+      "id": "done",
+      "name": "已完成",
+      "color": "#10b981",
+      "done": true
+    }
+  ],
+  "categories": [
+    {
+      "id": "dev",
+      "name": "开发",
+      "color": "#3b82f6"
+    },
+    {
+      "id": "design",
+      "name": "设计",
+      "color": "#ec4899"
+    },
+    {
+      "id": "docs",
+      "name": "文档",
+      "color": "#f59e0b"
+    },
+    {
+      "id": "ops",
+      "name": "运营",
+      "color": "#14b8a6"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task-001",
+      "title": "看板组件四视图（看板/表格/日历/统计）",
+      "status": "done",
+      "category": "dev",
+      "assignees": [
+        "alice",
+        "bob"
+      ],
+      "priority": "high",
+      "progress": 100,
+      "startDate": "2026-10-05",
+      "dueDate": "2026-10-08",
+      "doneAt": "2026-10-07",
+      "tags": [
+        "组件",
+        "前端"
+      ],
+      "notes": "零第三方依赖：看板列、可排序表格、自绘月历、CSS 统计条。",
+      "links": [
+        {
+          "title": "组件文档",
+          "url": "/guides/components"
+        }
+      ]
+    },
+    {
+      "id": "task-002",
+      "title": "boardApi 本地保存中间件（防穿越/原子写）",
+      "status": "review",
+      "category": "dev",
+      "assignees": [
+        "bob"
+      ],
+      "priority": "high",
+      "progress": 100,
+      "startDate": "2026-10-05",
+      "dueDate": "2026-10-08",
+      "tags": [
+        "dev 中间件"
+      ],
+      "notes": "照 mindmapApi 骨架：ping 探测 + PUT 落盘，build 产物自动只读。"
+    },
+    {
+      "id": "task-003",
+      "title": "看板视觉走查（暗色模式与长任务名截断）",
+      "status": "review",
+      "category": "design",
+      "assignees": [
+        "carol"
+      ],
+      "priority": "medium",
+      "progress": 80,
+      "startDate": "2026-10-08",
+      "dueDate": "2026-10-13",
+      "tags": [
+        "走查"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "task-004",
+      "title": "components.md 增补 TaskBoard 使用文档",
+      "status": "doing",
+      "category": "docs",
+      "assignees": [
+        "dave"
+      ],
+      "priority": "medium",
+      "progress": 40,
+      "startDate": "2026-10-09",
+      "dueDate": "2026-10-14",
+      "tags": [
+        "文档"
+      ],
+      "notes": "props 表 + JSON schema 说明 + dev/build 能力差异。",
+      "links": [
+        {
+          "title": "内嵌组件指南（vault 笔记）",
+          "url": "guides/components.md"
+        }
+      ]
+    },
+    {
+      "id": "task-005",
+      "title": "拖拽换列在触屏上的降级方案",
+      "status": "todo",
+      "category": "dev",
+      "assignees": [
+        "alice"
+      ],
+      "priority": "low",
+      "dueDate": "2026-10-05",
+      "tags": [
+        "体验"
+      ],
+      "notes": "HTML5 DnD 在移动端不可用，评估长按菜单替代。已超期。"
+    },
+    {
+      "id": "task-006",
+      "title": "发布 0.4.0 并更新 CHANGELOG",
+      "status": "todo",
+      "category": "ops",
+      "assignees": [
+        "bob",
+        "dave"
+      ],
+      "priority": "high",
+      "dueDate": "2026-10-15",
+      "tags": [
+        "发布"
+      ],
+      "links": [
+        {
+          "title": "npm 包主页",
+          "url": "https://www.npmjs.com/package/local-notes"
+        }
+      ]
+    },
+    {
+      "id": "task-007",
+      "title": "统计视图增加燃尽趋势",
+      "status": "todo",
+      "category": "dev",
+      "assignees": [
+        "carol"
+      ],
+      "priority": "low",
+      "tags": [
+        "统计"
+      ],
+      "notes": "按 doneAt 聚合每日累计完成数。"
+    },
+    {
+      "id": "task-008",
+      "title": "示例看板数据（本文件）与文档内嵌渲染",
+      "status": "done",
+      "category": "docs",
+      "assignees": [
+        "dave",
+        "carol"
+      ],
+      "priority": "medium",
+      "progress": 100,
+      "startDate": "2026-10-06",
+      "dueDate": "2026-10-09",
+      "doneAt": "2026-10-09",
+      "tags": [
+        "示例"
+      ]
+    },
+    {
+      "id": "task-009",
+      "title": "图标与空态插画（成员/配置/删除确认）",
+      "status": "doing",
+      "category": "design",
+      "assignees": [
+        "carol"
+      ],
+      "priority": "medium",
+      "progress": 55,
+      "startDate": "2026-10-07",
+      "dueDate": "2026-10-16",
+      "tags": [
+        "插画"
+      ]
+    },
+    {
+      "id": "task-010",
+      "title": "社群公告与更新日志推文",
+      "status": "done",
+      "category": "ops",
+      "assignees": [
+        "alice"
+      ],
+      "priority": "low",
+      "progress": 75,
+      "dueDate": "2026-10-20",
+      "doneAt": "2026-10-09",
+      "tags": [
+        "推文"
+      ]
+    },
+    {
+      "id": "task-011",
+      "title": "甘特层叠视图技术预研",
+      "status": "done",
+      "category": "dev",
+      "assignees": [],
+      "priority": "low",
+      "doneAt": "2026-10-09",
+      "tags": [
+        "预研"
+      ],
+      "notes": "跨天任务在日历视图以跨度条呈现，甘特为下一阶段候选。"
+    },
+    {
+      "id": "task-012",
+      "title": "归档旧版项目数据迁移脚本",
+      "status": "done",
+      "category": "ops",
+      "assignees": [
+        "bob"
+      ],
+      "priority": "low",
+      "progress": 100,
+      "dueDate": "2026-10-05",
+      "doneAt": "2026-10-05",
+      "tags": [
+        "迁移"
+      ]
+    }
+  ]
+}

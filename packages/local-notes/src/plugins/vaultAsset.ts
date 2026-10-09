@@ -17,8 +17,8 @@ import { resolveLocalNotesOptions } from "../options.ts";
  * - build：closeBundle 时把白名单后缀的附件增量拷贝到 `<outDir>/<assetPrefix 去斜杠>/`，
  *   以 mtime+size 判断是否需要拷贝，重复构建几乎零开销。
  *
- * 安全：只允许白名单后缀（含 .mindmap.json 完整后缀特判，思维导图数据文件）；
- * 解析后路径必须仍位于 vaultDir 内（防目录穿越）；扫描/拷贝一律跳过
+ * 安全：只允许白名单后缀（含 .mindmap.json / .taskboard.json 完整后缀特判，
+ * 结构化数据文件）；解析后路径必须仍位于 vaultDir 内（防目录穿越）；扫描/拷贝一律跳过
  * 内置 + extraSkipDirs 合并后的目录（工程与隐私目录）。
  */
 
@@ -53,16 +53,23 @@ const MIME: Record<string, string> = {
 const SERVE_EXTS = new Set(Object.keys(MIME));
 
 /**
- * 思维导图数据文件的完整后缀特判。
+ * 结构化 JSON 数据文件的完整后缀特判（思维导图 .mindmap.json、任务看板 .taskboard.json）。
  *
  * 坑：path.extname("a.mindmap.json") 返回 ".json"，不能把 ".json" 加进 SERVE_EXTS——
  * 那会让 dev 服务暴露、build 拷贝全库所有 json。必须按文件名整体 endsWith 判断。
  */
 export const MINDMAP_SUFFIX = ".mindmap.json";
+export const BOARDS_SUFFIX = ".taskboard.json";
 const MINDMAP_MIME = "application/json; charset=utf-8";
+const BOARDS_MIME = "application/json; charset=utf-8";
 
 function isMindmapFile(name: string): boolean {
   return name.toLowerCase().endsWith(MINDMAP_SUFFIX);
+}
+
+/** 任务看板数据文件（TaskBoard 组件数据源）的完整后缀特判 */
+function isBoardFile(name: string): boolean {
+  return name.toLowerCase().endsWith(BOARDS_SUFFIX);
 }
 
 /** 资源 URL 前缀规范化：保证以 "/" 开头、以 "/" 结尾（便于 startsWith / slice） */
@@ -75,6 +82,7 @@ function normalizePrefix(raw: string): string {
 
 function mimeOf(filePath: string): string {
   if (isMindmapFile(filePath)) return MINDMAP_MIME;
+  if (isBoardFile(filePath)) return BOARDS_MIME;
   return MIME[path.extname(filePath).toLowerCase()] ?? "application/octet-stream";
 }
 
@@ -95,8 +103,13 @@ function resolveVaultFile(vaultDirRaw: string, prefix: string, skipDirs: Set<str
   const abs = path.resolve(vaultDir, rel);
   // 目录穿越防护：解析结果必须仍在 vaultDir 内
   if (abs !== vaultDir && !abs.startsWith(vaultDir + path.sep)) return null;
-  // .mindmap.json 完整后缀特判放行（思维导图数据），通用 .json 仍然拒绝
-  if (!isMindmapFile(abs) && !SERVE_EXTS.has(path.extname(abs).toLowerCase())) return null;
+  // .mindmap.json / .taskboard.json 完整后缀特判放行（结构化数据文件），通用 .json 仍然拒绝
+  if (
+    !isMindmapFile(abs) &&
+    !isBoardFile(abs) &&
+    !SERVE_EXTS.has(path.extname(abs).toLowerCase())
+  )
+    return null;
   return abs;
 }
 
@@ -163,9 +176,9 @@ export function collectAssets(
     } else if (
       e.isFile() &&
       (exts.has(path.extname(e.name).toLowerCase()) ||
-        // .mindmap.json 特判只属于完整服务白名单（默认参数）；显式传入自定义
+        // 结构化数据后缀特判只属于完整服务白名单（默认参数）；显式传入自定义
         // 白名单的调用方（如侧栏只收 PDF/EPUB）不受影响
-        (exts === SERVE_EXTS && isMindmapFile(e.name)))
+        (exts === SERVE_EXTS && (isMindmapFile(e.name) || isBoardFile(e.name))))
     ) {
       out.push(rel);
     }

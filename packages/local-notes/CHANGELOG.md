@@ -5,6 +5,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-10-09
+
+### Added
+
+- **Task board component** (`<TaskBoard src="/vault/xxx.taskboard.json" />`,
+  globally registered by the theme, also exported from `local-notes/components`):
+  a Tower-style project panel driven by a per-board `*.taskboard.json` file in
+  the vault — members, status columns and task categories are all configured
+  inside the board file itself, so every project gets its own taxonomy.
+  - **Four views**: kanban (columns follow the configured status order),
+    sortable table, hand-drawn month calendar (Monday-first, due-date chips,
+    multi-day span bars, overdue highlighting) and statistics (overall
+    completion, per-status / per-member / per-category progress bars) —
+    zero third-party chart/DnD/calendar dependencies (pure Vue + CSS).
+  - **Filters**: member avatars, categories, statuses, priority, overdue-only
+    toggle and free-text search, plus a live "n/total" match count.
+  - **Dev editing** (mirrors the MindMap pattern): create/edit/delete tasks in
+    a dialog, drag cards between status columns, manage members (name/color)
+    and board config (statuses incl. done-flag, categories, ordering), with
+    3s-debounced autosave (`Cmd/Ctrl+S` for immediate save) back to the JSON
+    file. Tasks moved into a done column get `doneAt` stamped automatically.
+    Static builds hide every editing entry (read-only degradation).
+  - **Task document links**: `links: [{ title?, url }]` on each task, accepting
+    site-absolute routes, vault note paths (`foo.md` → site route) and external
+    URLs (new tab); rendered on cards, in the table and in the detail dialog,
+    editable in dev.
+  - **Fullscreen** follows the MindMap overlay convention (toolbar button +
+    Esc).
+- **Board save API** `boardApiPlugin` (dev-only, part of
+  `localNotesPlugins`): `GET <apiBase>/board/ping` probe +
+  `PUT <apiBase>/board` atomic write-back, with the same safety chain as the
+  mind-map API (`.taskboard.json` suffix allow-list, `..`/NUL/hidden/skip-dir
+  rejection, vault containment, tmp+rename).
+- **Asset whitelist**: `*.taskboard.json` joins `*.mindmap.json` as a
+  special-cased structured-data suffix for dev serving and build-time copying
+  (generic `.json` stays rejected).
+- **Full-page board view**: new theme option `boardPath` (e.g. `"/board"`).
+  When set, the embedded panel shows a 「整页」 toolbar button jumping to
+  `<boardPath>?src=<current board>`; pages with frontmatter `board: true`
+  render the new `TaskBoardPage` component (viewport-fixed edge-to-edge, same
+  mechanism as the graph page). The demo site adds `site/board.md`, a 「看板」
+  navbar entry and a sample board (`guides/assets/demo.taskboard.json`).
+
 ## [0.3.0] - 2026-10-09
 
 ### Added

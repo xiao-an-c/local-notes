@@ -2,13 +2,13 @@
 
 把一个本地 Markdown 笔记库（Obsidian 完全兼容）发布成
 [VitePress](https://vitepress.dev/) 站点，**并且可以在浏览器里直接编辑**——
-Monaco 在线编辑、思维导图、知识图谱、双链与反链、PDF/附件预览。
+Monaco 在线编辑、思维导图、任务看板、知识图谱、双链与反链、PDF/附件预览。
 **对笔记目录结构零假设。**
 
 - 许可：[MIT](./LICENSE) —— Copyright (c) 2026 xiao-an-c
 - 仓库：<https://github.com/VibingNotes/local-notes>（monorepo：本包在
   `packages/local-notes/`，demo 站在仓库根 [`demo/`](../../demo)）
-- 状态：v0.1.0 —— 下列功能全部实现，并由 demo 笔记库实际跑通
+- 状态：v0.4.0 —— 下列功能全部实现，并由 demo 笔记库实际跑通
 - 语言说明：本文档以中文为主；库内代码注释为中文，`demo/` 是可运行的活样例。
 
 ## 为什么做这个
@@ -27,6 +27,7 @@ Obsidian 笔记库，还是就是一堆文档文件夹。静态站点生成器�
 | **套模板新建笔记** | 顶栏「＋ 新建笔记」按钮：选一个已有目录、可选一个模板文件；笔记在磁盘上创建并直接进入编辑 |
 | **冲突保护** | 基于文件 mtime 的乐观并发：如果你打开编辑器之后有外部工具（Obsidian、脚本……）保存过该文件，保存会返回 **HTTP 409**，什么都不会被覆盖 |
 | **思维导图** | `<MindMap src="/vault/xxx.mindmap.json" />` 嵌入可交互思维导图；dev 下可编辑（双击 / Tab / Enter），并自动保存回 JSON 文件 |
+| **任务看板** | `<TaskBoard src="/vault/xxx.taskboard.json" />` 嵌入 Tower 风格项目看板：看板/表格/日历/统计四视图，成员/分类/状态/优先级筛选，任务可挂文档链接；dev 下可编辑（增删任务/成员/分类、拖拽换列）并自动保存回 JSON；配置 `boardPath` 后可整页查看 |
 | **知识图谱** | 任何 frontmatter 含 `graph: true` 的页面都会渲染整库的力导向图谱（由双链构建） |
 | **双链与反链** | `[[...]]` 目标交给任意双向链接 markdown-it 插件解析；每个页面自动获得反链面板 |
 | **PDF 与附件** | `<PdfViewer>`、指向 `.pdf` 的链接自动内嵌、Obsidian `![[file.pdf]]` 嵌入；附件以可配置前缀（默认 `/vault/`）提供，合并进侧栏，并可在整页查看器中打开 |
@@ -145,7 +146,11 @@ export default localNotesTheme({
   // rewrites 反向映射回真实文件）
   homeFile: "index.md",
   // 站点工程页不显示编辑入口（rewrites 之后的 relativePath）
-  excludedPages: ["graph.md", "viewer.md"],
+  excludedPages: ["graph.md", "board.md", "viewer.md"],
+  // 任务看板整页路由（可选）：配置后 <TaskBoard> 面板右上角出现「整页」
+  // 快捷入口，跳 <boardPath>?src=<当前看板>；对应一个 frontmatter 含
+  // board: true 的工程页（参考 demo 的 site/board.md）
+  boardPath: "/board",
 });
 ```
 
@@ -167,11 +172,11 @@ pnpm build      # 静态产物，完全可读，编辑能力自动隐藏
   PUT 回内容。如果文件期间被改过——Obsidian 保存了、脚本 touch 了——API 会
   回答 **409 Conflict** 并拒绝写入，两个工具永远不会静默互相覆盖。写入是
   原子的（`tmp` + `rename`）。每个路径都做校验：后缀只允许
-  `.md`/`.mindmap.json`、禁止 `..`、禁止隐藏目录与跳过清单里的目录，且解析
-  后的路径必须仍在 `vaultDir` 内。
+  `.md`/`.mindmap.json`/`.taskboard.json`、禁止 `..`、禁止隐藏目录与跳过清单
+  里的目录，且解析后的路径必须仍在 `vaultDir` 内。
 - `vitepress build`：静态产物里这些路由根本不存在。主题会探测 API
-  （`/api/md/ping`、`/api/mindmap/ping`）并隐藏所有编辑入口——同样的内容，
-  只读。
+  （`/api/md/ping`、`/api/mindmap/ping`、`/api/board/ping`）并隐藏所有编辑
+  入口——同样的内容，只读。
 
 ## 与 Obsidian 共存
 
@@ -207,6 +212,7 @@ pnpm build      # 静态产物，完全可读，编辑能力自动隐藏
 | --- | --- | --- | --- |
 | `assetPrefix` | `string` | `"/vault/"` | 前端拼资源 URL 用的前缀；必须与服务端一致 |
 | `viewerPath` | `string` | `"/viewer"` | 附件查看页路由；必须与服务端一致 |
+| `boardPath` | `string` | `undefined` | 任务看板整页路由（对应 frontmatter `board: true` 的工程页）。配置后 `<TaskBoard>` 面板出现「整页」快捷入口；`undefined` 表示不启用 |
 | `apiBase` | `string` | `"/api"` | 前端 fetch 编辑/思维导图 API 的前缀；必须与服务端一致 |
 | `homeFile` | `string` | `"README.md"` | 用于把站点首页反向映射回笔记库文件，以便编辑 |
 | `excludedPages` | `string[]` | `[]` | 永不显示编辑入口的站点页面（rewrites 后的 relativePath） |
@@ -219,14 +225,16 @@ pnpm build      # 静态产物，完全可读，编辑能力自动隐藏
   `backlinksPlugin`（虚拟模块 `virtual:backlinks` / `virtual:graph`）、
   `vaultAssetPlugin`（dev 下按 `assetPrefix` 提供静态服务）、
   `vaultAssetCopyPlugin`（build 期拷贝，需要 `outDir`）、
-  `mindmapApiPlugin` + `mdApiPlugin`（dev 写 API）、
+  `mindmapApiPlugin` + `boardApiPlugin` + `mdApiPlugin`（dev 写 API：思维导图
+  保存、任务看板保存、markdown 读写/新建）、
   `vaultMdAutoRestart`（笔记增删时重启 dev 服务，新页面立刻可用）、
   `vueHmrGuardPlugin`（HMR 竞态防护）。另有 `pdfEmbedPlugin`——把 `.pdf`
   链接与 `![[file.pdf]]` 嵌入变成内嵌预览卡片的 markdown-it 插件，以及
   `mergeVaultAssetSidebar`——把笔记库附件合并进任意侧栏数组的纯数据工具。
 - **`local-notes/theme`** —— 扩展 VitePress 默认主题的主题：把编辑入口、
-  新建笔记对话框、单例编辑器、反链面板与图谱画布挂进 Layout 插槽，并全局
-  注册 `PdfViewer` / `MindMap` / `VaultFileViewer`。
+  新建笔记对话框、单例编辑器、反链面板、图谱画布（`graph: true` 页）与看板
+  整页（`board: true` 页 → `TaskBoardPage`）挂进 Layout 插槽，并全局
+  注册 `PdfViewer` / `MindMap` / `TaskBoard` / `VaultFileViewer`。
 - **`local-notes/components`** —— 同一批组件导出，供自定义主题使用。组件
   依赖 VitePress 客户端运行时，所以入口必须拆开；node 入口保持 node 安全。
 - 笔记库从不被复制用于编辑：dev API 直接写原始文件；构建只把**附件**
@@ -236,8 +244,10 @@ pnpm build      # 静态产物，完全可读，编辑能力自动隐藏
 
 本包住在 [notes monorepo](https://github.com/VibingNotes/local-notes) 的
 `packages/local-notes/`，demo 站（workspace 消费者）在仓库根 `demo/`。
-源码直发形态（`exports` 指向 `src/*.ts`，无 dist），demo 经 pnpm workspace
-symlink 直接编译库源码：
+theme/components 两入口源码直发（`exports` 指向 `src/*.ts`），demo 经 pnpm
+workspace symlink 直接编译库源码；node 入口（`.`）自 0.3.0 起编译为
+`dist/index.js`（Node 拒绝对 node_modules 内源码做类型剥离，源码直发会让
+VitePress 原生 ESM 配置加载器报错）：
 
 ```sh
 pnpm install                            # 仓库根（沙箱环境可加 --store-dir .pnpm-store）
@@ -245,8 +255,10 @@ pnpm -C demo dev                        # 跑 demo 站（本仓库 demo 为纯�
 pnpm -C demo build                      # demo 静态构建（只读降级）
 ```
 
-改 `src/` 源码保存即生效。发布到 npm 时 `files: ["src", …]` 随包带源码，
-消费端 vite 管线负责编译（`.vue`/TS/`?worker` 均无需额外配置）。
+改 `src/` 源码保存即生效（theme/components 走源码；改 `src/plugins/` 后需
+`pnpm -C packages/local-notes build` 重建 dist 才对 demo 生效）。发布到 npm
+时 `files: ["dist", "src", …]` 同时带产物与源码，消费端 vite 管线负责编译
+`.vue`/TS（无需额外配置）。
 
 ## 许可
 

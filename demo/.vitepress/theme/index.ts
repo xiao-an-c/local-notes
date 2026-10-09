@@ -19,7 +19,10 @@ const base = localNotesTheme({
   // 「编辑此页」/ 新建后跳转据此做 rewrites 逆映射）
   homeFile: "index.md",
   // 站点功能页不显示「编辑此页」（相对文档根的 relativePath）
-  excludedPages: ["graph.md", "viewer.md"],
+  excludedPages: ["graph.md", "board.md", "viewer.md"],
+  // 任务看板整页路由：内嵌看板右上角出现「整页」快捷入口 → /board?src=…
+  //（对应 site/board.md，frontmatter board: true 由主题整页渲染）
+  boardPath: "/board",
   // 纯阅读站点：不显示「✎ 编辑此页」和顶栏「＋ 新建笔记」
   //（编辑器/新建对话框随之停用；Markdown 直接改文件即可）
   enableEditThisPage: false,

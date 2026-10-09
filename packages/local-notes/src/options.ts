@@ -99,6 +99,13 @@ export interface LocalNotesThemeOptions {
   assetPrefix?: string;
   /** 附件预览页路由，默认 "/viewer" */
   viewerPath?: string;
+  /**
+   * 任务看板整页路由（frontmatter `board: true` 的页面）。配置后：
+   * - <TaskBoard> 面板工具栏出现「整页」按钮（跳 `<boardPath>?src=<当前看板>`）；
+   * - TaskBoardPage 挂到该路由对应的工程页上整页渲染看板。
+   * 默认 undefined = 不启用（不显示「整页」入口）。
+   */
+  boardPath?: string;
   /** dev API 路由前缀（前端 fetch 编辑/导图接口用），默认 "/api"，应与服务端 apiBase 一致 */
   apiBase?: string;
   /**
@@ -141,6 +148,8 @@ export interface ResolvedLocalNotesOptions {
 export interface ResolvedLocalNotesThemeOptions {
   assetPrefix: string;
   viewerPath: string;
+  /** 任务看板整页路由；undefined = 未启用（面板不显示「整页」入口） */
+  boardPath?: string;
   apiBase: string;
   homeFile: string;
   excludedPages: string[];
@@ -179,6 +188,7 @@ export function resolveLocalNotesThemeOptions(
   return {
     assetPrefix: options.assetPrefix ?? DEFAULT_ASSET_PREFIX,
     viewerPath: options.viewerPath ?? DEFAULT_VIEWER_PATH,
+    boardPath: options.boardPath,
     apiBase: options.apiBase ?? DEFAULT_API_BASE,
     homeFile: options.homeFile ?? DEFAULT_HOME_FILE,
     excludedPages: options.excludedPages ?? [],

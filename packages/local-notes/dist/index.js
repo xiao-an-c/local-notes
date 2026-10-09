@@ -41,6 +41,7 @@ function resolveLocalNotesThemeOptions(options = {}) {
   return {
     assetPrefix: options.assetPrefix ?? DEFAULT_ASSET_PREFIX,
     viewerPath: options.viewerPath ?? DEFAULT_VIEWER_PATH,
+    boardPath: options.boardPath,
     apiBase: options.apiBase ?? DEFAULT_API_BASE,
     homeFile: options.homeFile ?? DEFAULT_HOME_FILE,
     excludedPages: options.excludedPages ?? [],
@@ -400,12 +401,11 @@ function vaultMdAutoRestart(options) {
   };
 }
 
-// src/plugins/mdApi.ts
+// src/plugins/boardApi.ts
 import fs from "node:fs";
 import path2 from "node:path";
-var SUFFIX = ".md";
+var SUFFIX = ".taskboard.json";
 var MAX_BODY_BYTES = 32 * 1024 * 1024;
-var MTIME_EPSILON = 1;
 function sendJson(res, status, payload) {
   if (res.writableEnded || res.destroyed) return;
   const body = JSON.stringify(payload);
@@ -430,16 +430,15 @@ function readBody(req) {
     req.on("error", (err) => reject(err));
   });
 }
-function mdApiContext(options) {
+function boardApiContext(options) {
   const resolved = resolveLocalNotesOptions(options);
   return {
     vaultDir: path2.resolve(resolved.vaultDir),
     apiBase: resolved.apiBase,
-    templateDir: resolved.templateDir?.replaceAll("\\", "/").replace(/\/+$/, "") || void 0,
     skipDirs: new Set(resolved.skipDirs)
   };
 }
-function resolveMdTarget(ctx, rawRel) {
+function resolveBoardTarget(ctx, rawRel) {
   const vaultDir = ctx.vaultDir;
   if (typeof rawRel !== "string" || rawRel.trim() === "") return { error: "path \u5FC5\u987B\u662F\u975E\u7A7A\u5B57\u7B26\u4E32" };
   if (rawRel.includes("\0")) return { error: "path \u975E\u6CD5\uFF08\u542B\u7A7A\u5B57\u8282\uFF09" };
@@ -456,83 +455,49 @@ function resolveMdTarget(ctx, rawRel) {
     if (seg.startsWith(".")) return { error: `path \u4E0D\u5141\u8BB8\u6307\u5411\u9690\u85CF\u76EE\u5F55/\u6587\u4EF6\uFF1A${seg}` };
     if (ctx.skipDirs.has(seg)) return { error: `path \u4E0D\u5141\u8BB8\u843D\u5728\u5DE5\u7A0B/\u9690\u79C1\u76EE\u5F55\u5185\uFF1A${seg}` };
   }
-  if (!rel.toLowerCase().endsWith(SUFFIX)) return { error: "path \u5FC5\u987B\u4EE5 .md \u7ED3\u5C3E\uFF08\u4EC5\u652F\u6301\u7F16\u8F91 vault \u7B14\u8BB0\uFF09" };
+  if (!rel.toLowerCase().endsWith(SUFFIX)) return { error: "path \u5FC5\u987B\u4EE5 .taskboard.json \u7ED3\u5C3E" };
   const abs = path2.resolve(vaultDir, rel);
   if (abs !== vaultDir && !abs.startsWith(vaultDir + path2.sep)) {
     return { error: "path \u8D8A\u51FA vault \u6839\u76EE\u5F55" };
   }
   return { abs };
 }
-function extractPathParam(rawUrl) {
-  const qIndex = rawUrl.indexOf("?");
-  if (qIndex < 0) return {};
-  const query = Buffer.from(rawUrl.slice(qIndex + 1), "latin1").toString("utf8");
-  for (const pair of query.split("&")) {
-    const eq = pair.indexOf("=");
-    const key = eq < 0 ? pair : pair.slice(0, eq);
-    if (key !== "path") continue;
-    const rawValue = eq < 0 ? "" : pair.slice(eq + 1);
-    try {
-      decodeURIComponent(rawValue);
-    } catch {
-      return { error: "path URL \u7F16\u7801\u975E\u6CD5" };
-    }
-    return { rawValue };
+function validateBoardData(data) {
+  if (typeof data !== "object" || data === null || Array.isArray(data)) return "data \u5FC5\u987B\u662F\u5BF9\u8C61";
+  for (const key of ["members", "statuses", "categories", "tasks"]) {
+    const list = data[key];
+    if (!Array.isArray(list)) return `data.${key} \u5FC5\u987B\u662F\u6570\u7EC4`;
   }
-  return {};
-}
-function statIfExists(abs) {
-  try {
-    const st = fs.statSync(abs);
-    return st.isFile() ? st : null;
-  } catch {
-    return null;
-  }
-}
-function handleGet(ctx, res, rawUrl) {
-  const { rawValue, error } = extractPathParam(rawUrl);
-  if (error) return void sendJson(res, 400, { error });
-  const target = resolveMdTarget(ctx, rawValue);
-  if ("error" in target) return void sendJson(res, 400, { error: target.error });
-  const stat = statIfExists(target.abs);
-  if (!stat) return void sendJson(res, 404, { error: "\u6587\u4EF6\u4E0D\u5B58\u5728" });
-  const content = fs.readFileSync(target.abs, "utf8");
-  return void sendJson(res, 200, { content, mtime: stat.mtimeMs });
+  return null;
 }
 async function handlePut(ctx, req, res) {
   try {
     const contentType = String(req.headers["content-type"] ?? "");
     if (!contentType.toLowerCase().includes("application/json")) {
-      return void sendJson(res, 400, { error: "Content-Type \u5FC5\u987B\u4E3A application/json" });
+      return sendJson(res, 400, { error: "Content-Type \u5FC5\u987B\u4E3A application/json" });
     }
     let raw;
     try {
       raw = await readBody(req);
     } catch (e) {
       const status = e.statusCode === 413 ? 413 : 400;
-      return void sendJson(res, status, { error: e?.message ?? "\u8BFB\u53D6\u8BF7\u6C42\u4F53\u5931\u8D25" });
+      return sendJson(res, status, { error: e?.message ?? "\u8BFB\u53D6\u8BF7\u6C42\u4F53\u5931\u8D25" });
     }
     let body;
     try {
       body = JSON.parse(raw);
     } catch {
-      return void sendJson(res, 400, { error: "body \u4E0D\u662F\u5408\u6CD5 JSON" });
+      return sendJson(res, 400, { error: "body \u4E0D\u662F\u5408\u6CD5 JSON" });
     }
     if (typeof body !== "object" || body === null || Array.isArray(body)) {
-      return void sendJson(res, 400, { error: "body \u5FC5\u987B\u662F JSON \u5BF9\u8C61" });
+      return sendJson(res, 400, { error: "body \u5FC5\u987B\u662F JSON \u5BF9\u8C61" });
     }
-    const { path: relPath, content, baseMtime } = body;
-    const target = resolveMdTarget(ctx, relPath);
-    if ("error" in target) return void sendJson(res, 400, { error: target.error });
-    if (typeof content !== "string") return void sendJson(res, 400, { error: "content \u5FC5\u987B\u662F\u5B57\u7B26\u4E32\uFF08\u5141\u8BB8\u7A7A\u4E32\uFF09" });
-    const stat = statIfExists(target.abs);
-    if (!stat) return void sendJson(res, 404, { error: "\u6587\u4EF6\u4E0D\u5B58\u5728" });
-    if (typeof baseMtime === "number" && Number.isFinite(baseMtime)) {
-      if (Math.abs(stat.mtimeMs - baseMtime) > MTIME_EPSILON) {
-        return void sendJson(res, 409, { error: "\u6587\u4EF6\u5DF2\u88AB\u5916\u90E8\u4FEE\u6539", mtime: stat.mtimeMs });
-      }
-    }
-    trackSelfWrite(target.abs);
+    const { path: relPath, data } = body;
+    const target = resolveBoardTarget(ctx, relPath);
+    if ("error" in target) return sendJson(res, 400, { error: target.error });
+    const dataError = validateBoardData(data);
+    if (dataError) return sendJson(res, 400, { error: dataError });
+    const content = JSON.stringify(data, null, 2) + "\n";
     fs.mkdirSync(path2.dirname(target.abs), { recursive: true });
     const tmp = target.abs + ".tmp";
     try {
@@ -546,151 +511,31 @@ async function handlePut(ctx, req, res) {
       throw e;
     }
     const mtime = fs.statSync(target.abs).mtimeMs;
-    return void sendJson(res, 200, { ok: true, mtime });
+    return sendJson(res, 200, { ok: true, mtime });
   } catch (e) {
-    return void sendJson(res, 500, { error: `\u5199\u5165\u5931\u8D25\uFF1A${e?.message ?? String(e)}` });
+    return sendJson(res, 500, { error: `\u5199\u5165\u5931\u8D25\uFF1A${e?.message ?? String(e)}` });
   }
 }
-function collectDirsAndTemplates(ctx) {
-  const vaultDir = ctx.vaultDir;
-  const dirs = [];
-  const templates = [];
-  const walk = (base) => {
-    let entries;
-    try {
-      entries = fs.readdirSync(base ? path2.join(vaultDir, base) : vaultDir, { withFileTypes: true });
-    } catch {
-      return;
-    }
-    for (const e of entries) {
-      if (e.isSymbolicLink()) continue;
-      if (e.isDirectory()) {
-        if (e.name.startsWith(".") || ctx.skipDirs.has(e.name)) continue;
-        const rel = base ? `${base}/${e.name}` : e.name;
-        dirs.push(rel);
-        walk(rel);
-      } else if (e.isFile() && base) {
-        const rel = `${base}/${e.name}`;
-        if (ctx.templateDir && rel.startsWith(ctx.templateDir + "/") && e.name.toLowerCase().endsWith(SUFFIX)) {
-          templates.push(rel);
-        }
-      }
-    }
-  };
-  walk("");
-  const coll = "zh-Hans-CN";
-  dirs.sort((a, b) => a.localeCompare(b, coll));
-  templates.sort((a, b) => a.localeCompare(b, coll));
-  return { dirs, templates };
-}
-function handleGetDirs(ctx, res) {
-  const { dirs, templates } = collectDirsAndTemplates(ctx);
-  if (!ctx.templateDir) return void sendJson(res, 200, { dirs });
-  return void sendJson(res, 200, { dirs, templates, templateDir: ctx.templateDir });
-}
-async function handlePost(ctx, req, res) {
-  try {
-    const contentType = String(req.headers["content-type"] ?? "");
-    if (!contentType.toLowerCase().includes("application/json")) {
-      return void sendJson(res, 400, { error: "Content-Type \u5FC5\u987B\u4E3A application/json" });
-    }
-    let raw;
-    try {
-      raw = await readBody(req);
-    } catch (e) {
-      const status = e.statusCode === 413 ? 413 : 400;
-      return void sendJson(res, status, { error: e?.message ?? "\u8BFB\u53D6\u8BF7\u6C42\u4F53\u5931\u8D25" });
-    }
-    let body;
-    try {
-      body = JSON.parse(raw);
-    } catch {
-      return void sendJson(res, 400, { error: "body \u4E0D\u662F\u5408\u6CD5 JSON" });
-    }
-    if (typeof body !== "object" || body === null || Array.isArray(body)) {
-      return void sendJson(res, 400, { error: "body \u5FC5\u987B\u662F JSON \u5BF9\u8C61" });
-    }
-    const { path: relPath, template } = body;
-    const target = resolveMdTarget(ctx, relPath);
-    if ("error" in target) return void sendJson(res, 400, { error: target.error });
-    if (template !== void 0 && template !== null && !ctx.templateDir) {
-      return void sendJson(res, 400, { error: "\u6A21\u677F\u529F\u80FD\u672A\u542F\u7528\uFF08\u672A\u914D\u7F6E templateDir\uFF09\uFF0C\u4E0D\u63A5\u53D7 template \u5B57\u6BB5" });
-    }
-    const root = ctx.vaultDir;
-    const parentAbs = path2.dirname(target.abs);
-    if (parentAbs !== root) {
-      let parentOk = false;
-      try {
-        parentOk = fs.statSync(parentAbs).isDirectory();
-      } catch {
-      }
-      if (!parentOk) {
-        return void sendJson(res, 400, { error: "\u76EE\u5F55\u4E0D\u5B58\u5728\uFF0C\u8BF7\u4ECE\u5DF2\u6709\u76EE\u5F55\u4E2D\u9009\u62E9\uFF08\u6682\u4E0D\u652F\u6301\u65B0\u5EFA\u76EE\u5F55\uFF09" });
-      }
-    }
-    if (statIfExists(target.abs)) return void sendJson(res, 409, { error: "\u6587\u4EF6\u5DF2\u5B58\u5728" });
-    let content = null;
-    if (typeof template === "string" && template.trim() !== "" && ctx.templateDir) {
-      const tpl = resolveMdTarget(ctx, template);
-      if ("error" in tpl) return void sendJson(res, 400, { error: `\u6A21\u677F\u8DEF\u5F84\u975E\u6CD5\uFF1A${tpl.error}` });
-      const templateRoot = path2.join(root, ctx.templateDir);
-      if (!tpl.abs.startsWith(templateRoot + path2.sep)) {
-        return void sendJson(res, 400, { error: `\u6A21\u677F\u5FC5\u987B\u662F ${ctx.templateDir}/ \u4E0B\u7684 .md \u6587\u4EF6` });
-      }
-      if (!statIfExists(tpl.abs)) return void sendJson(res, 400, { error: "\u6A21\u677F\u4E0D\u5B58\u5728" });
-      content = fs.readFileSync(tpl.abs, "utf8");
-    } else if (template !== void 0 && template !== null) {
-      return void sendJson(res, 400, { error: "template \u5FC5\u987B\u662F\u5B57\u7B26\u4E32\uFF08\u53EF\u7701\u7565\uFF09" });
-    }
-    if (content === null) {
-      const base = path2.basename(target.abs);
-      content = `# ${base.slice(0, -SUFFIX.length)}
-`;
-    }
-    const tmp = target.abs + ".tmp";
-    try {
-      fs.writeFileSync(tmp, content);
-      fs.renameSync(tmp, target.abs);
-    } catch (e) {
-      try {
-        fs.unlinkSync(tmp);
-      } catch {
-      }
-      throw e;
-    }
-    const rel = path2.relative(root, target.abs).replaceAll(path2.sep, "/");
-    return void sendJson(res, 201, { ok: true, path: rel });
-  } catch (e) {
-    return void sendJson(res, 500, { error: `\u65B0\u5EFA\u5931\u8D25\uFF1A${e?.message ?? String(e)}` });
-  }
-}
-function mdApiPlugin(options) {
-  const ctx = mdApiContext(options);
+function boardApiPlugin(options) {
+  const ctx = boardApiContext(options);
   const route = (suffix) => (ctx.apiBase + suffix).replace(/\/{2,}/g, "/");
   return {
-    name: "local-notes:md-api",
+    name: "local-notes:board-api",
     apply: "serve",
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
-        const url = req.url ?? "";
-        const pathname = url.split("?")[0];
+        const url = (req.url ?? "").split("?")[0];
         try {
-          if (pathname === route("/md/ping")) {
-            if (req.method !== "GET") return void sendJson(res, 405, { error: "\u4EC5\u652F\u6301 GET" });
-            return void sendJson(res, 200, { ok: true });
+          if (url === route("/board/ping")) {
+            if (req.method !== "GET") return sendJson(res, 405, { error: "\u4EC5\u652F\u6301 GET" });
+            return sendJson(res, 200, { ok: true });
           }
-          if (pathname === route("/md/dirs")) {
-            if (req.method !== "GET") return void sendJson(res, 405, { error: "\u4EC5\u652F\u6301 GET" });
-            return void handleGetDirs(ctx, res);
-          }
-          if (pathname === route("/md")) {
-            if (req.method === "GET") return void handleGet(ctx, res, url);
-            if (req.method === "PUT") return void handlePut(ctx, req, res);
-            if (req.method === "POST") return void handlePost(ctx, req, res);
-            return void sendJson(res, 405, { error: "\u4EC5\u652F\u6301 GET / PUT / POST" });
+          if (url === route("/board")) {
+            if (req.method !== "PUT") return sendJson(res, 405, { error: "\u4EC5\u652F\u6301 PUT" });
+            return void handlePut(ctx, req, res);
           }
         } catch (e) {
-          return void sendJson(res, 500, { error: `\u670D\u52A1\u5F02\u5E38\uFF1A${e?.message ?? String(e)}` });
+          return sendJson(res, 500, { error: `\u670D\u52A1\u5F02\u5E38\uFF1A${e?.message ?? String(e)}` });
         }
         return next();
       });
@@ -698,11 +543,12 @@ function mdApiPlugin(options) {
   };
 }
 
-// src/plugins/mindmapApi.ts
+// src/plugins/mdApi.ts
 import fs2 from "node:fs";
 import path3 from "node:path";
-var SUFFIX2 = ".mindmap.json";
+var SUFFIX2 = ".md";
 var MAX_BODY_BYTES2 = 32 * 1024 * 1024;
+var MTIME_EPSILON = 1;
 function sendJson2(res, status, payload) {
   if (res.writableEnded || res.destroyed) return;
   const body = JSON.stringify(payload);
@@ -727,10 +573,307 @@ function readBody2(req) {
     req.on("error", (err) => reject(err));
   });
 }
-function mindmapApiContext(options) {
+function mdApiContext(options) {
   const resolved = resolveLocalNotesOptions(options);
   return {
     vaultDir: path3.resolve(resolved.vaultDir),
+    apiBase: resolved.apiBase,
+    templateDir: resolved.templateDir?.replaceAll("\\", "/").replace(/\/+$/, "") || void 0,
+    skipDirs: new Set(resolved.skipDirs)
+  };
+}
+function resolveMdTarget(ctx, rawRel) {
+  const vaultDir = ctx.vaultDir;
+  if (typeof rawRel !== "string" || rawRel.trim() === "") return { error: "path \u5FC5\u987B\u662F\u975E\u7A7A\u5B57\u7B26\u4E32" };
+  if (rawRel.includes("\0")) return { error: "path \u975E\u6CD5\uFF08\u542B\u7A7A\u5B57\u8282\uFF09" };
+  let rel;
+  try {
+    rel = decodeURIComponent(rawRel);
+  } catch {
+    return { error: "path URL \u7F16\u7801\u975E\u6CD5" };
+  }
+  const segs = rel.split(/[\\/]+/).filter(Boolean);
+  if (segs.length === 0) return { error: "path \u5FC5\u987B\u662F\u975E\u7A7A\u5B57\u7B26\u4E32" };
+  for (const seg of segs) {
+    if (seg === "..") return { error: "path \u4E0D\u5141\u8BB8\u5305\u542B .. \u8DEF\u5F84\u6BB5" };
+    if (seg.startsWith(".")) return { error: `path \u4E0D\u5141\u8BB8\u6307\u5411\u9690\u85CF\u76EE\u5F55/\u6587\u4EF6\uFF1A${seg}` };
+    if (ctx.skipDirs.has(seg)) return { error: `path \u4E0D\u5141\u8BB8\u843D\u5728\u5DE5\u7A0B/\u9690\u79C1\u76EE\u5F55\u5185\uFF1A${seg}` };
+  }
+  if (!rel.toLowerCase().endsWith(SUFFIX2)) return { error: "path \u5FC5\u987B\u4EE5 .md \u7ED3\u5C3E\uFF08\u4EC5\u652F\u6301\u7F16\u8F91 vault \u7B14\u8BB0\uFF09" };
+  const abs = path3.resolve(vaultDir, rel);
+  if (abs !== vaultDir && !abs.startsWith(vaultDir + path3.sep)) {
+    return { error: "path \u8D8A\u51FA vault \u6839\u76EE\u5F55" };
+  }
+  return { abs };
+}
+function extractPathParam(rawUrl) {
+  const qIndex = rawUrl.indexOf("?");
+  if (qIndex < 0) return {};
+  const query = Buffer.from(rawUrl.slice(qIndex + 1), "latin1").toString("utf8");
+  for (const pair of query.split("&")) {
+    const eq = pair.indexOf("=");
+    const key = eq < 0 ? pair : pair.slice(0, eq);
+    if (key !== "path") continue;
+    const rawValue = eq < 0 ? "" : pair.slice(eq + 1);
+    try {
+      decodeURIComponent(rawValue);
+    } catch {
+      return { error: "path URL \u7F16\u7801\u975E\u6CD5" };
+    }
+    return { rawValue };
+  }
+  return {};
+}
+function statIfExists(abs) {
+  try {
+    const st = fs2.statSync(abs);
+    return st.isFile() ? st : null;
+  } catch {
+    return null;
+  }
+}
+function handleGet(ctx, res, rawUrl) {
+  const { rawValue, error } = extractPathParam(rawUrl);
+  if (error) return void sendJson2(res, 400, { error });
+  const target = resolveMdTarget(ctx, rawValue);
+  if ("error" in target) return void sendJson2(res, 400, { error: target.error });
+  const stat = statIfExists(target.abs);
+  if (!stat) return void sendJson2(res, 404, { error: "\u6587\u4EF6\u4E0D\u5B58\u5728" });
+  const content = fs2.readFileSync(target.abs, "utf8");
+  return void sendJson2(res, 200, { content, mtime: stat.mtimeMs });
+}
+async function handlePut2(ctx, req, res) {
+  try {
+    const contentType = String(req.headers["content-type"] ?? "");
+    if (!contentType.toLowerCase().includes("application/json")) {
+      return void sendJson2(res, 400, { error: "Content-Type \u5FC5\u987B\u4E3A application/json" });
+    }
+    let raw;
+    try {
+      raw = await readBody2(req);
+    } catch (e) {
+      const status = e.statusCode === 413 ? 413 : 400;
+      return void sendJson2(res, status, { error: e?.message ?? "\u8BFB\u53D6\u8BF7\u6C42\u4F53\u5931\u8D25" });
+    }
+    let body;
+    try {
+      body = JSON.parse(raw);
+    } catch {
+      return void sendJson2(res, 400, { error: "body \u4E0D\u662F\u5408\u6CD5 JSON" });
+    }
+    if (typeof body !== "object" || body === null || Array.isArray(body)) {
+      return void sendJson2(res, 400, { error: "body \u5FC5\u987B\u662F JSON \u5BF9\u8C61" });
+    }
+    const { path: relPath, content, baseMtime } = body;
+    const target = resolveMdTarget(ctx, relPath);
+    if ("error" in target) return void sendJson2(res, 400, { error: target.error });
+    if (typeof content !== "string") return void sendJson2(res, 400, { error: "content \u5FC5\u987B\u662F\u5B57\u7B26\u4E32\uFF08\u5141\u8BB8\u7A7A\u4E32\uFF09" });
+    const stat = statIfExists(target.abs);
+    if (!stat) return void sendJson2(res, 404, { error: "\u6587\u4EF6\u4E0D\u5B58\u5728" });
+    if (typeof baseMtime === "number" && Number.isFinite(baseMtime)) {
+      if (Math.abs(stat.mtimeMs - baseMtime) > MTIME_EPSILON) {
+        return void sendJson2(res, 409, { error: "\u6587\u4EF6\u5DF2\u88AB\u5916\u90E8\u4FEE\u6539", mtime: stat.mtimeMs });
+      }
+    }
+    trackSelfWrite(target.abs);
+    fs2.mkdirSync(path3.dirname(target.abs), { recursive: true });
+    const tmp = target.abs + ".tmp";
+    try {
+      fs2.writeFileSync(tmp, content);
+      fs2.renameSync(tmp, target.abs);
+    } catch (e) {
+      try {
+        fs2.unlinkSync(tmp);
+      } catch {
+      }
+      throw e;
+    }
+    const mtime = fs2.statSync(target.abs).mtimeMs;
+    return void sendJson2(res, 200, { ok: true, mtime });
+  } catch (e) {
+    return void sendJson2(res, 500, { error: `\u5199\u5165\u5931\u8D25\uFF1A${e?.message ?? String(e)}` });
+  }
+}
+function collectDirsAndTemplates(ctx) {
+  const vaultDir = ctx.vaultDir;
+  const dirs = [];
+  const templates = [];
+  const walk = (base) => {
+    let entries;
+    try {
+      entries = fs2.readdirSync(base ? path3.join(vaultDir, base) : vaultDir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const e of entries) {
+      if (e.isSymbolicLink()) continue;
+      if (e.isDirectory()) {
+        if (e.name.startsWith(".") || ctx.skipDirs.has(e.name)) continue;
+        const rel = base ? `${base}/${e.name}` : e.name;
+        dirs.push(rel);
+        walk(rel);
+      } else if (e.isFile() && base) {
+        const rel = `${base}/${e.name}`;
+        if (ctx.templateDir && rel.startsWith(ctx.templateDir + "/") && e.name.toLowerCase().endsWith(SUFFIX2)) {
+          templates.push(rel);
+        }
+      }
+    }
+  };
+  walk("");
+  const coll = "zh-Hans-CN";
+  dirs.sort((a, b) => a.localeCompare(b, coll));
+  templates.sort((a, b) => a.localeCompare(b, coll));
+  return { dirs, templates };
+}
+function handleGetDirs(ctx, res) {
+  const { dirs, templates } = collectDirsAndTemplates(ctx);
+  if (!ctx.templateDir) return void sendJson2(res, 200, { dirs });
+  return void sendJson2(res, 200, { dirs, templates, templateDir: ctx.templateDir });
+}
+async function handlePost(ctx, req, res) {
+  try {
+    const contentType = String(req.headers["content-type"] ?? "");
+    if (!contentType.toLowerCase().includes("application/json")) {
+      return void sendJson2(res, 400, { error: "Content-Type \u5FC5\u987B\u4E3A application/json" });
+    }
+    let raw;
+    try {
+      raw = await readBody2(req);
+    } catch (e) {
+      const status = e.statusCode === 413 ? 413 : 400;
+      return void sendJson2(res, status, { error: e?.message ?? "\u8BFB\u53D6\u8BF7\u6C42\u4F53\u5931\u8D25" });
+    }
+    let body;
+    try {
+      body = JSON.parse(raw);
+    } catch {
+      return void sendJson2(res, 400, { error: "body \u4E0D\u662F\u5408\u6CD5 JSON" });
+    }
+    if (typeof body !== "object" || body === null || Array.isArray(body)) {
+      return void sendJson2(res, 400, { error: "body \u5FC5\u987B\u662F JSON \u5BF9\u8C61" });
+    }
+    const { path: relPath, template } = body;
+    const target = resolveMdTarget(ctx, relPath);
+    if ("error" in target) return void sendJson2(res, 400, { error: target.error });
+    if (template !== void 0 && template !== null && !ctx.templateDir) {
+      return void sendJson2(res, 400, { error: "\u6A21\u677F\u529F\u80FD\u672A\u542F\u7528\uFF08\u672A\u914D\u7F6E templateDir\uFF09\uFF0C\u4E0D\u63A5\u53D7 template \u5B57\u6BB5" });
+    }
+    const root = ctx.vaultDir;
+    const parentAbs = path3.dirname(target.abs);
+    if (parentAbs !== root) {
+      let parentOk = false;
+      try {
+        parentOk = fs2.statSync(parentAbs).isDirectory();
+      } catch {
+      }
+      if (!parentOk) {
+        return void sendJson2(res, 400, { error: "\u76EE\u5F55\u4E0D\u5B58\u5728\uFF0C\u8BF7\u4ECE\u5DF2\u6709\u76EE\u5F55\u4E2D\u9009\u62E9\uFF08\u6682\u4E0D\u652F\u6301\u65B0\u5EFA\u76EE\u5F55\uFF09" });
+      }
+    }
+    if (statIfExists(target.abs)) return void sendJson2(res, 409, { error: "\u6587\u4EF6\u5DF2\u5B58\u5728" });
+    let content = null;
+    if (typeof template === "string" && template.trim() !== "" && ctx.templateDir) {
+      const tpl = resolveMdTarget(ctx, template);
+      if ("error" in tpl) return void sendJson2(res, 400, { error: `\u6A21\u677F\u8DEF\u5F84\u975E\u6CD5\uFF1A${tpl.error}` });
+      const templateRoot = path3.join(root, ctx.templateDir);
+      if (!tpl.abs.startsWith(templateRoot + path3.sep)) {
+        return void sendJson2(res, 400, { error: `\u6A21\u677F\u5FC5\u987B\u662F ${ctx.templateDir}/ \u4E0B\u7684 .md \u6587\u4EF6` });
+      }
+      if (!statIfExists(tpl.abs)) return void sendJson2(res, 400, { error: "\u6A21\u677F\u4E0D\u5B58\u5728" });
+      content = fs2.readFileSync(tpl.abs, "utf8");
+    } else if (template !== void 0 && template !== null) {
+      return void sendJson2(res, 400, { error: "template \u5FC5\u987B\u662F\u5B57\u7B26\u4E32\uFF08\u53EF\u7701\u7565\uFF09" });
+    }
+    if (content === null) {
+      const base = path3.basename(target.abs);
+      content = `# ${base.slice(0, -SUFFIX2.length)}
+`;
+    }
+    const tmp = target.abs + ".tmp";
+    try {
+      fs2.writeFileSync(tmp, content);
+      fs2.renameSync(tmp, target.abs);
+    } catch (e) {
+      try {
+        fs2.unlinkSync(tmp);
+      } catch {
+      }
+      throw e;
+    }
+    const rel = path3.relative(root, target.abs).replaceAll(path3.sep, "/");
+    return void sendJson2(res, 201, { ok: true, path: rel });
+  } catch (e) {
+    return void sendJson2(res, 500, { error: `\u65B0\u5EFA\u5931\u8D25\uFF1A${e?.message ?? String(e)}` });
+  }
+}
+function mdApiPlugin(options) {
+  const ctx = mdApiContext(options);
+  const route = (suffix) => (ctx.apiBase + suffix).replace(/\/{2,}/g, "/");
+  return {
+    name: "local-notes:md-api",
+    apply: "serve",
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const url = req.url ?? "";
+        const pathname = url.split("?")[0];
+        try {
+          if (pathname === route("/md/ping")) {
+            if (req.method !== "GET") return void sendJson2(res, 405, { error: "\u4EC5\u652F\u6301 GET" });
+            return void sendJson2(res, 200, { ok: true });
+          }
+          if (pathname === route("/md/dirs")) {
+            if (req.method !== "GET") return void sendJson2(res, 405, { error: "\u4EC5\u652F\u6301 GET" });
+            return void handleGetDirs(ctx, res);
+          }
+          if (pathname === route("/md")) {
+            if (req.method === "GET") return void handleGet(ctx, res, url);
+            if (req.method === "PUT") return void handlePut2(ctx, req, res);
+            if (req.method === "POST") return void handlePost(ctx, req, res);
+            return void sendJson2(res, 405, { error: "\u4EC5\u652F\u6301 GET / PUT / POST" });
+          }
+        } catch (e) {
+          return void sendJson2(res, 500, { error: `\u670D\u52A1\u5F02\u5E38\uFF1A${e?.message ?? String(e)}` });
+        }
+        return next();
+      });
+    }
+  };
+}
+
+// src/plugins/mindmapApi.ts
+import fs3 from "node:fs";
+import path4 from "node:path";
+var SUFFIX3 = ".mindmap.json";
+var MAX_BODY_BYTES3 = 32 * 1024 * 1024;
+function sendJson3(res, status, payload) {
+  if (res.writableEnded || res.destroyed) return;
+  const body = JSON.stringify(payload);
+  res.statusCode = status;
+  res.setHeader("Content-Type", "application/json; charset=utf-8");
+  res.setHeader("Content-Length", String(Buffer.byteLength(body)));
+  res.end(body);
+}
+function readBody3(req) {
+  return new Promise((resolve2, reject) => {
+    const chunks = [];
+    let size = 0;
+    req.on("data", (chunk) => {
+      size += chunk.length;
+      if (size > MAX_BODY_BYTES3) {
+        reject(Object.assign(new Error("body \u8D85\u8FC7\u5927\u5C0F\u4E0A\u9650"), { statusCode: 413 }));
+        return;
+      }
+      chunks.push(chunk);
+    });
+    req.on("end", () => resolve2(Buffer.concat(chunks).toString("utf8")));
+    req.on("error", (err) => reject(err));
+  });
+}
+function mindmapApiContext(options) {
+  const resolved = resolveLocalNotesOptions(options);
+  return {
+    vaultDir: path4.resolve(resolved.vaultDir),
     apiBase: resolved.apiBase,
     skipDirs: new Set(resolved.skipDirs)
   };
@@ -752,9 +895,9 @@ function resolveMindmapTarget(ctx, rawRel) {
     if (seg.startsWith(".")) return { error: `path \u4E0D\u5141\u8BB8\u6307\u5411\u9690\u85CF\u76EE\u5F55/\u6587\u4EF6\uFF1A${seg}` };
     if (ctx.skipDirs.has(seg)) return { error: `path \u4E0D\u5141\u8BB8\u843D\u5728\u5DE5\u7A0B/\u9690\u79C1\u76EE\u5F55\u5185\uFF1A${seg}` };
   }
-  if (!rel.toLowerCase().endsWith(SUFFIX2)) return { error: "path \u5FC5\u987B\u4EE5 .mindmap.json \u7ED3\u5C3E" };
-  const abs = path3.resolve(vaultDir, rel);
-  if (abs !== vaultDir && !abs.startsWith(vaultDir + path3.sep)) {
+  if (!rel.toLowerCase().endsWith(SUFFIX3)) return { error: "path \u5FC5\u987B\u4EE5 .mindmap.json \u7ED3\u5C3E" };
+  const abs = path4.resolve(vaultDir, rel);
+  if (abs !== vaultDir && !abs.startsWith(vaultDir + path4.sep)) {
     return { error: "path \u8D8A\u51FA vault \u6839\u76EE\u5F55" };
   }
   return { abs };
@@ -766,50 +909,50 @@ function validateMindmapData(data) {
   if (root.data === void 0) return "data.root.data \u7F3A\u5931";
   return null;
 }
-async function handlePut2(ctx, req, res) {
+async function handlePut3(ctx, req, res) {
   try {
     const contentType = String(req.headers["content-type"] ?? "");
     if (!contentType.toLowerCase().includes("application/json")) {
-      return sendJson2(res, 400, { error: "Content-Type \u5FC5\u987B\u4E3A application/json" });
+      return sendJson3(res, 400, { error: "Content-Type \u5FC5\u987B\u4E3A application/json" });
     }
     let raw;
     try {
-      raw = await readBody2(req);
+      raw = await readBody3(req);
     } catch (e) {
       const status = e.statusCode === 413 ? 413 : 400;
-      return sendJson2(res, status, { error: e?.message ?? "\u8BFB\u53D6\u8BF7\u6C42\u4F53\u5931\u8D25" });
+      return sendJson3(res, status, { error: e?.message ?? "\u8BFB\u53D6\u8BF7\u6C42\u4F53\u5931\u8D25" });
     }
     let body;
     try {
       body = JSON.parse(raw);
     } catch {
-      return sendJson2(res, 400, { error: "body \u4E0D\u662F\u5408\u6CD5 JSON" });
+      return sendJson3(res, 400, { error: "body \u4E0D\u662F\u5408\u6CD5 JSON" });
     }
     if (typeof body !== "object" || body === null || Array.isArray(body)) {
-      return sendJson2(res, 400, { error: "body \u5FC5\u987B\u662F JSON \u5BF9\u8C61" });
+      return sendJson3(res, 400, { error: "body \u5FC5\u987B\u662F JSON \u5BF9\u8C61" });
     }
     const { path: relPath, data } = body;
     const target = resolveMindmapTarget(ctx, relPath);
-    if ("error" in target) return sendJson2(res, 400, { error: target.error });
+    if ("error" in target) return sendJson3(res, 400, { error: target.error });
     const dataError = validateMindmapData(data);
-    if (dataError) return sendJson2(res, 400, { error: dataError });
+    if (dataError) return sendJson3(res, 400, { error: dataError });
     const content = JSON.stringify(data, null, 2) + "\n";
-    fs2.mkdirSync(path3.dirname(target.abs), { recursive: true });
+    fs3.mkdirSync(path4.dirname(target.abs), { recursive: true });
     const tmp = target.abs + ".tmp";
     try {
-      fs2.writeFileSync(tmp, content);
-      fs2.renameSync(tmp, target.abs);
+      fs3.writeFileSync(tmp, content);
+      fs3.renameSync(tmp, target.abs);
     } catch (e) {
       try {
-        fs2.unlinkSync(tmp);
+        fs3.unlinkSync(tmp);
       } catch {
       }
       throw e;
     }
-    const mtime = fs2.statSync(target.abs).mtimeMs;
-    return sendJson2(res, 200, { ok: true, mtime });
+    const mtime = fs3.statSync(target.abs).mtimeMs;
+    return sendJson3(res, 200, { ok: true, mtime });
   } catch (e) {
-    return sendJson2(res, 500, { error: `\u5199\u5165\u5931\u8D25\uFF1A${e?.message ?? String(e)}` });
+    return sendJson3(res, 500, { error: `\u5199\u5165\u5931\u8D25\uFF1A${e?.message ?? String(e)}` });
   }
 }
 function mindmapApiPlugin(options) {
@@ -823,15 +966,15 @@ function mindmapApiPlugin(options) {
         const url = (req.url ?? "").split("?")[0];
         try {
           if (url === route("/mindmap/ping")) {
-            if (req.method !== "GET") return sendJson2(res, 405, { error: "\u4EC5\u652F\u6301 GET" });
-            return sendJson2(res, 200, { ok: true });
+            if (req.method !== "GET") return sendJson3(res, 405, { error: "\u4EC5\u652F\u6301 GET" });
+            return sendJson3(res, 200, { ok: true });
           }
           if (url === route("/mindmap")) {
-            if (req.method !== "PUT") return sendJson2(res, 405, { error: "\u4EC5\u652F\u6301 PUT" });
-            return void handlePut2(ctx, req, res);
+            if (req.method !== "PUT") return sendJson3(res, 405, { error: "\u4EC5\u652F\u6301 PUT" });
+            return void handlePut3(ctx, req, res);
           }
         } catch (e) {
-          return sendJson2(res, 500, { error: `\u670D\u52A1\u5F02\u5E38\uFF1A${e?.message ?? String(e)}` });
+          return sendJson3(res, 500, { error: `\u670D\u52A1\u5F02\u5E38\uFF1A${e?.message ?? String(e)}` });
         }
         return next();
       });
@@ -840,12 +983,12 @@ function mindmapApiPlugin(options) {
 }
 
 // src/plugins/markdown.ts
-import fs4 from "node:fs";
-import path5 from "node:path";
+import fs5 from "node:fs";
+import path6 from "node:path";
 
 // src/plugins/vaultAsset.ts
-import fs3 from "node:fs";
-import path4 from "node:path";
+import fs4 from "node:fs";
+import path5 from "node:path";
 var MIME = {
   ".pdf": "application/pdf",
   ".epub": "application/epub+zip",
@@ -875,9 +1018,14 @@ var MIME = {
 };
 var SERVE_EXTS = new Set(Object.keys(MIME));
 var MINDMAP_SUFFIX = ".mindmap.json";
+var BOARDS_SUFFIX = ".taskboard.json";
 var MINDMAP_MIME = "application/json; charset=utf-8";
+var BOARDS_MIME = "application/json; charset=utf-8";
 function isMindmapFile(name) {
   return name.toLowerCase().endsWith(MINDMAP_SUFFIX);
+}
+function isBoardFile(name) {
+  return name.toLowerCase().endsWith(BOARDS_SUFFIX);
 }
 function normalizePrefix(raw) {
   let p = raw.trim();
@@ -887,10 +1035,11 @@ function normalizePrefix(raw) {
 }
 function mimeOf(filePath) {
   if (isMindmapFile(filePath)) return MINDMAP_MIME;
-  return MIME[path4.extname(filePath).toLowerCase()] ?? "application/octet-stream";
+  if (isBoardFile(filePath)) return BOARDS_MIME;
+  return MIME[path5.extname(filePath).toLowerCase()] ?? "application/octet-stream";
 }
 function resolveVaultFile(vaultDirRaw, prefix, skipDirs, rawUrl) {
-  const vaultDir = path4.resolve(vaultDirRaw);
+  const vaultDir = path5.resolve(vaultDirRaw);
   let pathname;
   try {
     pathname = decodeURIComponent(rawUrl.split("?")[0] ?? "");
@@ -901,13 +1050,14 @@ function resolveVaultFile(vaultDirRaw, prefix, skipDirs, rawUrl) {
   const rel = pathname.slice(prefix.length);
   if (!rel || rel.includes("\0")) return null;
   if (rel.split("/").some((seg) => skipDirs.has(seg))) return null;
-  const abs = path4.resolve(vaultDir, rel);
-  if (abs !== vaultDir && !abs.startsWith(vaultDir + path4.sep)) return null;
-  if (!isMindmapFile(abs) && !SERVE_EXTS.has(path4.extname(abs).toLowerCase())) return null;
+  const abs = path5.resolve(vaultDir, rel);
+  if (abs !== vaultDir && !abs.startsWith(vaultDir + path5.sep)) return null;
+  if (!isMindmapFile(abs) && !isBoardFile(abs) && !SERVE_EXTS.has(path5.extname(abs).toLowerCase()))
+    return null;
   return abs;
 }
 function sendFile(req, res, filePath) {
-  const stat = fs3.statSync(filePath);
+  const stat = fs4.statSync(filePath);
   const mime = mimeOf(filePath);
   const range = req.headers.range;
   const m = range ? /^bytes=(\d*)-(\d*)$/.exec(range) : null;
@@ -932,21 +1082,21 @@ function sendFile(req, res, filePath) {
     res.setHeader("Content-Length", String(end - start + 1));
     res.setHeader("Content-Type", mime);
     res.setHeader("Accept-Ranges", "bytes");
-    fs3.createReadStream(filePath, { start, end }).pipe(res);
+    fs4.createReadStream(filePath, { start, end }).pipe(res);
     return;
   }
   res.setHeader("Content-Type", mime);
   res.setHeader("Content-Length", String(stat.size));
   res.setHeader("Accept-Ranges", "bytes");
   res.setHeader("Cache-Control", "no-cache");
-  fs3.createReadStream(filePath).pipe(res);
+  fs4.createReadStream(filePath).pipe(res);
 }
 function collectAssets(vaultDirRaw, skipDirs, exts = SERVE_EXTS, base = "", out = []) {
-  const vaultDir = path4.resolve(vaultDirRaw);
+  const vaultDir = path5.resolve(vaultDirRaw);
   const skipped = skipDirs instanceof Set ? skipDirs : new Set(skipDirs);
   let entries;
   try {
-    entries = fs3.readdirSync(base ? path4.join(vaultDir, base) : vaultDir, { withFileTypes: true });
+    entries = fs4.readdirSync(base ? path5.join(vaultDir, base) : vaultDir, { withFileTypes: true });
   } catch {
     return out;
   }
@@ -955,9 +1105,9 @@ function collectAssets(vaultDirRaw, skipDirs, exts = SERVE_EXTS, base = "", out 
     if (e.isDirectory()) {
       if (skipped.has(e.name) || e.name.startsWith(".")) continue;
       collectAssets(vaultDir, skipped, exts, rel, out);
-    } else if (e.isFile() && (exts.has(path4.extname(e.name).toLowerCase()) || // .mindmap.json 特判只属于完整服务白名单（默认参数）；显式传入自定义
+    } else if (e.isFile() && (exts.has(path5.extname(e.name).toLowerCase()) || // 结构化数据后缀特判只属于完整服务白名单（默认参数）；显式传入自定义
     // 白名单的调用方（如侧栏只收 PDF/EPUB）不受影响
-    exts === SERVE_EXTS && isMindmapFile(e.name))) {
+    exts === SERVE_EXTS && (isMindmapFile(e.name) || isBoardFile(e.name)))) {
       out.push(rel);
     }
   }
@@ -966,7 +1116,7 @@ function collectAssets(vaultDirRaw, skipDirs, exts = SERVE_EXTS, base = "", out 
 function assetContext(options) {
   const resolved = resolveLocalNotesOptions(options);
   return {
-    vaultDir: path4.resolve(resolved.vaultDir),
+    vaultDir: path5.resolve(resolved.vaultDir),
     prefix: normalizePrefix(resolved.assetPrefix),
     skipDirs: new Set(resolved.skipDirs)
   };
@@ -979,7 +1129,7 @@ function vaultAssetPlugin(options) {
     configureServer(server) {
       const tryServe = (rawUrl) => {
         const filePath = resolveVaultFile(ctx.vaultDir, ctx.prefix, ctx.skipDirs, rawUrl);
-        if (!filePath || !fs3.existsSync(filePath) || !fs3.statSync(filePath).isFile()) return null;
+        if (!filePath || !fs4.existsSync(filePath) || !fs4.statSync(filePath).isFile()) return null;
         return filePath;
       };
       server.middlewares.use((req, res, next) => {
@@ -1006,30 +1156,30 @@ function vaultAssetPlugin(options) {
 function vaultAssetCopyPlugin(options) {
   const resolved = resolveLocalNotesOptions(options);
   const ctx = assetContext(resolved);
-  const outDir = path4.resolve(resolved.outDir ?? "dist");
+  const outDir = path5.resolve(resolved.outDir ?? "dist");
   return {
     name: "local-notes:vault-assets-copy",
     apply: "build",
     closeBundle() {
-      const targetRoot = path4.join(outDir, ctx.prefix.replaceAll("/", ""));
+      const targetRoot = path5.join(outDir, ctx.prefix.replaceAll("/", ""));
       const assets = collectAssets(ctx.vaultDir, ctx.skipDirs);
       let copied = 0;
       for (const rel of assets) {
-        const src = path4.join(ctx.vaultDir, rel);
-        const dest = path4.join(targetRoot, rel);
+        const src = path5.join(ctx.vaultDir, rel);
+        const dest = path5.join(targetRoot, rel);
         try {
-          const st = fs3.statSync(src);
-          const existing = fs3.existsSync(dest) ? fs3.statSync(dest) : null;
+          const st = fs4.statSync(src);
+          const existing = fs4.existsSync(dest) ? fs4.statSync(dest) : null;
           if (existing && existing.size === st.size && existing.mtimeMs >= st.mtimeMs) continue;
-          fs3.mkdirSync(path4.dirname(dest), { recursive: true });
-          fs3.copyFileSync(src, dest);
-          fs3.utimesSync(dest, st.atime, st.mtime);
+          fs4.mkdirSync(path5.dirname(dest), { recursive: true });
+          fs4.copyFileSync(src, dest);
+          fs4.utimesSync(dest, st.atime, st.mtime);
           copied++;
         } catch {
         }
       }
       console.log(
-        `[local-notes:vault-assets] ${assets.length} \u4E2A\u9644\u4EF6\u5DF2\u5C31\u7EEA\uFF0C\u672C\u6B21\u62F7\u8D1D ${copied} \u4E2A \u2192 ${path4.relative(process.cwd(), targetRoot) || targetRoot}/`
+        `[local-notes:vault-assets] ${assets.length} \u4E2A\u9644\u4EF6\u5DF2\u5C31\u7EEA\uFF0C\u672C\u6B21\u62F7\u8D1D ${copied} \u4E2A \u2192 ${path5.relative(process.cwd(), targetRoot) || targetRoot}/`
       );
     }
   };
@@ -1063,7 +1213,7 @@ function isInternalFileHref(href) {
 }
 function pdfEmbedPlugin(options) {
   const resolved = resolveLocalNotesOptions(options);
-  const vaultDir = path5.resolve(resolved.vaultDir);
+  const vaultDir = path6.resolve(resolved.vaultDir);
   let prefix = resolved.assetPrefix.trim();
   if (!prefix.startsWith("/")) prefix = `/${prefix}`;
   if (!prefix.endsWith("/")) prefix = `${prefix}/`;
@@ -1072,7 +1222,7 @@ function pdfEmbedPlugin(options) {
     if (!nameIndex) {
       nameIndex = /* @__PURE__ */ new Map();
       for (const rel of collectAssets(vaultDir, new Set(resolved.skipDirs), /* @__PURE__ */ new Set([".pdf"]))) {
-        const name = path5.basename(rel);
+        const name = path6.basename(rel);
         const list = nameIndex.get(name);
         if (list) list.push(rel);
         else nameIndex.set(name, [rel]);
@@ -1093,19 +1243,19 @@ function pdfEmbedPlugin(options) {
     } else if (target.startsWith("/")) {
       candidates.push(target.slice(1));
     } else if (mode === "wikilink" && target.includes("/")) {
-      candidates.push(path5.posix.normalize(target));
-      candidates.push(path5.posix.normalize(path5.posix.join(currentRelDir, target)));
-      candidates.push(...getIndex().get(path5.basename(target)) ?? []);
+      candidates.push(path6.posix.normalize(target));
+      candidates.push(path6.posix.normalize(path6.posix.join(currentRelDir, target)));
+      candidates.push(...getIndex().get(path6.basename(target)) ?? []);
     } else if (target.includes("/")) {
-      const joined = path5.posix.normalize(path5.posix.join(currentRelDir, target));
-      candidates.push(joined.startsWith("..") ? path5.posix.normalize(target.replace(/^\.\.?\//, "")) : joined);
+      const joined = path6.posix.normalize(path6.posix.join(currentRelDir, target));
+      candidates.push(joined.startsWith("..") ? path6.posix.normalize(target.replace(/^\.\.?\//, "")) : joined);
     } else {
-      candidates.push(...getIndex().get(path5.basename(target)) ?? []);
+      candidates.push(...getIndex().get(path6.basename(target)) ?? []);
     }
     for (const rel of candidates) {
-      const abs = path5.resolve(vaultDir, rel);
-      if (abs.startsWith(vaultDir + path5.sep) && fs4.existsSync(abs) && fs4.statSync(abs).isFile()) {
-        return { rel, name: path5.basename(rel) };
+      const abs = path6.resolve(vaultDir, rel);
+      if (abs.startsWith(vaultDir + path6.sep) && fs5.existsSync(abs) && fs5.statSync(abs).isFile()) {
+        return { rel, name: path6.basename(rel) };
       }
     }
     return null;
@@ -1116,7 +1266,7 @@ function pdfEmbedPlugin(options) {
       if (!m) return false;
       if (!/\.pdf$/i.test((m[2] ?? "").trim())) return false;
       const alias = m[3]?.trim();
-      const currentRelDir = path5.posix.dirname(state.env?.relativePath ?? ".");
+      const currentRelDir = path6.posix.dirname(state.env?.relativePath ?? ".");
       const resolvedTarget = resolveTarget(m[2] ?? "", currentRelDir, "wikilink");
       if (!resolvedTarget) return false;
       if (silent) return true;
@@ -1126,7 +1276,7 @@ function pdfEmbedPlugin(options) {
       return true;
     });
     md.core.ruler.push("pdf_link_embed", (state) => {
-      const currentRelDir = path5.posix.dirname(state.env?.relativePath ?? ".");
+      const currentRelDir = path6.posix.dirname(state.env?.relativePath ?? ".");
       for (const block of state.tokens) {
         if (block.type !== "inline" || !block.children) continue;
         const children = block.children;
@@ -1204,7 +1354,7 @@ function vueHmrGuardPlugin() {
 }
 
 // src/plugins/sidebar.ts
-import path6 from "node:path";
+import path7 from "node:path";
 var DOCS_EXTS = /* @__PURE__ */ new Set([".pdf", ".epub"]);
 var ICON = { ".pdf": "\u{1F4C4}", ".epub": "\u{1F4DA}" };
 function normalizePrefix2(raw) {
@@ -1221,15 +1371,15 @@ function normalizeViewerPath(raw) {
 function buildFileIndex(vaultDir, skipDirs, assetLinkPrefix) {
   const map = /* @__PURE__ */ new Map();
   for (const rel of collectAssets(vaultDir, skipDirs, DOCS_EXTS)) {
-    const dir = path6.posix.dirname(rel);
+    const dir = path7.posix.dirname(rel);
     const key = dir === "." ? "" : dir;
     const list = map.get(key) ?? [];
-    let name = path6.basename(rel);
+    let name = path7.basename(rel);
     try {
       name = decodeURIComponent(name);
     } catch {
     }
-    const ext = path6.extname(rel).toLowerCase();
+    const ext = path7.extname(rel).toLowerCase();
     const encodedRel = rel.split("/").map((seg) => encodeURIComponent(seg)).join("/");
     list.push({ text: `${ICON[ext] ?? "\u{1F4C4}"} ${name}`, link: `${assetLinkPrefix}${encodedRel}` });
     map.set(key, list);
@@ -1242,7 +1392,7 @@ function buildFileIndex(vaultDir, skipDirs, assetLinkPrefix) {
 function buildChildrenIndex(dirs) {
   const map = /* @__PURE__ */ new Map();
   for (const dir of dirs) {
-    const parent = path6.posix.dirname(dir);
+    const parent = path7.posix.dirname(dir);
     if (dir === "" || parent === ".") continue;
     const list = map.get(parent) ?? [];
     list.push(dir);
@@ -1278,17 +1428,17 @@ function dirOf(node) {
 }
 function mergeVaultAssetSidebar(sidebar, options) {
   const resolved = resolveLocalNotesOptions(options);
-  const vault = path6.resolve(resolved.vaultDir);
+  const vault = path7.resolve(resolved.vaultDir);
   const skipDirs = new Set(resolved.skipDirs);
   const assetLinkPrefix = `${normalizeViewerPath(resolved.viewerPath)}#${normalizePrefix2(resolved.assetPrefix)}`;
   const filesByDir = buildFileIndex(vault, skipDirs, assetLinkPrefix);
   if (filesByDir.size === 0) return sidebar;
   const allDirs = new Set(filesByDir.keys());
   for (const dir of filesByDir.keys()) {
-    let cur = path6.posix.dirname(dir);
+    let cur = path7.posix.dirname(dir);
     while (cur !== "." && cur !== "/") {
       allDirs.add(cur);
-      const next = path6.posix.dirname(cur);
+      const next = path7.posix.dirname(cur);
       if (next === cur) break;
       cur = next;
     }
@@ -1337,6 +1487,7 @@ function localNotesPlugins(options) {
   if (options.outDir) plugins.push(vaultAssetCopyPlugin(options));
   plugins.push(
     mindmapApiPlugin(options),
+    boardApiPlugin(options),
     mdApiPlugin(options),
     vaultMdAutoRestart(options),
     vueHmrGuardPlugin()
@@ -1351,14 +1502,14 @@ function localNotesMarkdownItPlugins(options) {
 
 // src/config.ts
 import { existsSync } from "node:fs";
-import path7 from "node:path";
+import path8 from "node:path";
 import { defineConfig } from "vitepress";
 import { generateSidebar } from "vitepress-sidebar";
 function withLocalNotes(site = {}, user = {}) {
   const root = process.cwd();
   const srcDir = site.srcDir ?? (site.vaultDir ? relativeDir(root, site.vaultDir) : "site");
-  const vaultDir = path7.resolve(root, site.vaultDir ?? srcDir);
-  const outDir = site.outDir ?? user.outDir ?? path7.resolve(root, ".vitepress/dist");
+  const vaultDir = path8.resolve(root, site.vaultDir ?? srcDir);
+  const outDir = site.outDir ?? user.outDir ?? path8.resolve(root, ".vitepress/dist");
   const configPath = site.configPath ?? probeConfigPath(root);
   const pluginOptions = {
     vaultDir,
@@ -1395,12 +1546,12 @@ function withLocalNotes(site = {}, user = {}) {
   });
 }
 function relativeDir(root, vaultDir) {
-  const rel = path7.relative(root, path7.resolve(root, vaultDir));
-  return rel && !rel.startsWith("..") ? rel.split(path7.sep).join("/") : path7.resolve(root, vaultDir);
+  const rel = path8.relative(root, path8.resolve(root, vaultDir));
+  return rel && !rel.startsWith("..") ? rel.split(path8.sep).join("/") : path8.resolve(root, vaultDir);
 }
 function probeConfigPath(root) {
   for (const f of ["config.mts", "config.ts", "config.mjs", "config.js"]) {
-    const p = path7.resolve(root, ".vitepress", f);
+    const p = path8.resolve(root, ".vitepress", f);
     if (existsSync(p)) return p;
   }
   return void 0;
@@ -1437,6 +1588,7 @@ export {
   DEFAULT_SKIP_DIRS,
   DEFAULT_VIEWER_PATH,
   backlinksPlugin,
+  boardApiPlugin,
   localNotesMarkdownItPlugins,
   localNotesPlugins,
   mdApiPlugin,

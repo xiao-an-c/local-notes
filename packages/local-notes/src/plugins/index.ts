@@ -3,6 +3,7 @@ import type { LocalNotesOptions } from "../options.ts";
 import { resolveLocalNotesOptions } from "../options.ts";
 import { backlinksPlugin } from "./backlinks.ts";
 import { vaultMdAutoRestart } from "./autoRestart.ts";
+import { boardApiPlugin } from "./boardApi.ts";
 import { mdApiPlugin } from "./mdApi.ts";
 import { mindmapApiPlugin } from "./mindmapApi.ts";
 import { pdfEmbedPlugin, type MarkdownItPlugin } from "./markdown.ts";
@@ -13,6 +14,7 @@ import { vueHmrGuardPlugin } from "./vueHmrGuard.ts";
 
 export { backlinksPlugin } from "./backlinks.ts";
 export { vaultMdAutoRestart } from "./autoRestart.ts";
+export { boardApiPlugin } from "./boardApi.ts";
 export { mdApiPlugin } from "./mdApi.ts";
 export { mindmapApiPlugin } from "./mindmapApi.ts";
 export { pdfEmbedPlugin, type MarkdownItPlugin } from "./markdown.ts";
@@ -32,9 +34,10 @@ export { vueHmrGuardPlugin } from "./vueHmrGuard.ts";
  * 2. vaultAssetPlugin       —— 附件静态服务（dev 中间件）
  * 3. vaultAssetCopyPlugin   —— 附件增量拷贝（仅 build；options.outDir 未传时不加入）
  * 4. mindmapApiPlugin       —— 思维导图保存 API（仅 dev）
- * 5. mdApiPlugin            —— markdown 读写/新建 API（仅 dev）
- * 6. vaultMdAutoRestart     —— 笔记增删自动重启（仅 dev）
- * 7. vueHmrGuardPlugin      —— HMR 竞态防护（仅 dev）
+ * 5. boardApiPlugin         —— 任务看板保存 API（仅 dev）
+ * 6. mdApiPlugin            —— markdown 读写/新建 API（仅 dev）
+ * 7. vaultMdAutoRestart     —— 笔记增删自动重启（仅 dev）
+ * 8. vueHmrGuardPlugin      —— HMR 竞态防护（仅 dev）
  *
  * 另有几种**不进 vite.plugins** 的能力，按各自形态单独接入：
  * - markdown-it 插件 → localNotesMarkdownItPlugins(options)（次级组合入口）
@@ -53,6 +56,7 @@ export function localNotesPlugins(options: LocalNotesOptions): Plugin[] {
   if (options.outDir) plugins.push(vaultAssetCopyPlugin(options));
   plugins.push(
     mindmapApiPlugin(options),
+    boardApiPlugin(options),
     mdApiPlugin(options),
     vaultMdAutoRestart(options),
     vueHmrGuardPlugin(),

@@ -21,6 +21,7 @@
  */
 export {
   backlinksPlugin,
+  boardApiPlugin,
   localNotesMarkdownItPlugins,
   localNotesPlugins,
   mdApiPlugin,

@@ -5,7 +5,9 @@
  *   NavBarNewNote——编辑模式全家桶与思维导图；
  * - L3：Graph / PdfViewer / VaultFileViewer / Backlinks——图谱 / PDF 预览 /
  *   附件查看页 / 反链面板（数据依赖 backlinksPlugin 的 virtual:graph /
- *   virtual:backlinks 虚拟模块，须配合 localNotesPlugins 使用）。
+ *   virtual:backlinks 虚拟模块，须配合 localNotesPlugins 使用）；
+ * - TaskBoard：任务看板面板（数据源为 vault 内 *.taskboard.json，编辑保存依赖
+ *   boardApiPlugin 的 <apiBase>/board 路由，build 产物自动降级只读）。
  *
  * 组件单独引用示例：`import { MindMap } from "local-notes/components"`；
  * 编辑器组件依赖主题配置（apiBase/assetPrefix 等），建议经 localNotesTheme()
@@ -22,4 +24,6 @@ export { MindMap, type MindMapComponent, type MindMapProps } from "./MindMap.ts"
 export { NavBarNewNote, type NavBarNewNoteComponent } from "./NavBarNewNote.ts";
 export { NewNoteDialog, type NewNoteDialogComponent } from "./NewNoteDialog.ts";
 export { PdfViewer, type PdfViewerComponent, type PdfViewerProps } from "./PdfViewer.ts";
+export { TaskBoard, type TaskBoardComponent, type TaskBoardProps } from "./TaskBoard.ts";
+export { TaskBoardPage, type TaskBoardPageComponent } from "./TaskBoardPage.ts";
 export { VaultFileViewer, type VaultFileViewerComponent, type VaultFileViewerProps } from "./VaultFileViewer.ts";
