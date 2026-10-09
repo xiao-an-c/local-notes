@@ -32,6 +32,8 @@ tools/                 仓库级脚本（tts.mjs）
 .agents/docs/          Agent 协作约定文档（点目录，站点扫描天然跳过）
 ```
 
+npm 包：主题包以 [`local-notes`](https://www.npmjs.com/package/local-notes) 发布在 npm（`packages/local-notes/package.json` 的 `repository` 指回本仓库）。用户侧安装即 `pnpm add -D local-notes`。
+
 ## 常用命令
 
 ```sh

@@ -1,5 +1,8 @@
 # Notes · local-notes monorepo
 
+[![npm](https://img.shields.io/npm/v/local-notes)](https://www.npmjs.com/package/local-notes)
+[![license](https://img.shields.io/npm/l/local-notes)](LICENSE)
+
 > **主题包 + demo 站**：`packages/local-notes` 是可安装的 VitePress 主题包
 > （Monaco 编辑、知识图谱、双链反链、附件预览、思维导图），`demo/` 是主题的
 > demo 站——也就是本仓库自己的笔记站：`demo/site/` 写普通 Markdown（兼容
@@ -9,7 +12,7 @@
 
 | 路径 | 说明 |
 | --- | --- |
-| `packages/local-notes/` | 🎨 **主题包**（pnpm workspace 包，name `local-notes`）。四入口：`.`（vite/markdown-it 插件 + `withLocalNotes()` 配置组合）、`./theme`（`localNotesTheme()`）、`./components`、`./style.css`。源码直发，无 dist |
+| `packages/local-notes/` | 🎨 **主题包**（npm 包 [`local-notes`](https://www.npmjs.com/package/local-notes)，pnpm workspace 包）。四入口：`.`（vite/markdown-it 插件 + `withLocalNotes()` 配置组合）、`./theme`（`localNotesTheme()`）、`./components`、`./style.css`。源码直发，无 dist |
 | `demo/` | 📺 **demo 站**（主题的标准消费者示范 = 本仓库笔记站本体） |
 | `demo/site/` | **文档根** = VitePress `srcDir` = vault。`index.md` 首页、`graph.md` 知识图谱、`viewer.md` 附件预览、`guides/` 指南、`demo/` 演示、`components/` 组件文档；**侧栏菜单按文件夹结构自动生成** |
 | `demo/site/templates/` | 「新建笔记」模板（不生成页面、不进菜单） |
