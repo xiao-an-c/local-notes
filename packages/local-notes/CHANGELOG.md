@@ -16,6 +16,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Mermaid` and `MermaidFence` components. Disable with `mermaid: false` in site
   options. New dependency: `mermaid` (dynamically imported on the client, SSR-safe).
 
+### Changed
+
+- **Layout skin ships with the theme** (`theme/skin.css`, split from component
+  styles in `theme/styles.css`): three-column layout, aside collapsed by default
+  (「大纲」toggle expands it), pinned sidebar width, navbar offset fixes. The
+  panel toggles previously only wrote `<html>` classes while the CSS reacting to
+  them lived in each site's own stylesheet — toggles did nothing without it.
+  The open-aside rule also locks `flex` sizing (`flex: 0 0` + `max-width`) so
+  VitePress alpha's flex container and its scoped `max-width: 16rem` can no
+  longer squeeze the 18rem outline column. Sites no longer need a custom.css
+  for the notes-site look; purely project-level beautification (typography,
+  palette tweaks) still belongs to the site.
+
 ## [0.2.0] - 2026-10-09
 
 First release on npm. Monorepo packaging: the library is consumed as a real

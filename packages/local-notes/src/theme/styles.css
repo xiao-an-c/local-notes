@@ -1,5 +1,7 @@
-/* local-notes 组件相关全局样式（自抽离前站点 custom.css 迁入组件相关部分；
-   纯使用方项目美化——正文宽度、侧栏字号等——不进本库，留在使用方站点） */
+/* local-notes 主题级全局样式，按职责分两个文件（主题入口按此顺序引入）：
+ * - styles.css（本文件）：组件相关样式（反链面板/面板开关按钮/侧栏折叠动画）
+ * - skin.css：VitePress 默认主题的布局皮肤（三栏布局/大纲默认收起/侧栏钉宽）
+ * 纯使用方项目美化（正文排版、配色微调等）仍不进库，留在使用方站点 */
 
 /* 反向链接面板在暗色模式下的边框（Backlinks 组件 scoped 样式无法表达
    .dark 祖先选择器，故放主题级全局样式） */
@@ -11,8 +13,8 @@
  * 面板显隐切换（LayoutPanelsToggle 组件，2026-09-29）
  * - 「侧栏」按钮：html.ln-sidebar-collapsed → 隐藏左侧 VPSidebar + 内容区
  *   padding-left 归零（VPContent 的 scoped 规则特异性高，须 !important）
- * - 「大纲」按钮：html.ln-aside-open → 显示右侧 VPDocAside（默认收起规则
- *   在使用方站点 custom.css，因为 aside 默认态是站点级偏好）
+ * - 「大纲」按钮：html.ln-aside-open → 显示右侧 VPDocAside（默认收起与
+ *   展开宽度规则在 theme/skin.css——布局皮肤与组件样式分离）
  * ------------------------------------------------------------------------- */
 
 /* 按钮组：导航栏内，仅桌面端显示（<960px 侧栏是抽屉、大纲本就不显示） */

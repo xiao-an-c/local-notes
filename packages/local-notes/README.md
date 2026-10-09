@@ -136,6 +136,8 @@ export default defineConfig({
 
 ```ts
 import { localNotesTheme } from "local-notes/theme";
+// 可省略：主题入口已自带组件样式（styles.css）与布局皮肤（skin.css，
+// 三栏布局/侧栏/大纲开关的生效规则）；此导入仅供不经主题单用组件时补样式
 import "local-notes/style.css";
 
 export default localNotesTheme({

@@ -21,6 +21,9 @@ import { closeMdEditor, mdEditorState } from "../components/edit/mdEditorStore.t
 import { setupRestartBridge } from "./restartBridge.ts";
 // 组件相关全局样式（随主题入口进入 dist/style.css；站点亦可显式 import "local-notes/style.css"）
 import "./styles.css";
+// 布局皮肤：三栏布局 + 「侧栏/大纲」开关的完整 CSS 侧（面板按钮写 html 类，
+// 本文件让这些类真正生效——没有它开关就是「点了没反应」）
+import "./skin.css";
 
 export type { LocalNotesThemeOptions } from "../options.ts";
 export { getLocalNotesThemeConfig } from "./config.ts";

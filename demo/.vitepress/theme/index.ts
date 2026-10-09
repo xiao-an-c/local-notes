@@ -5,8 +5,6 @@
 // （symlink 指回 packages/local-notes 源码，无 dist）；改库源码即时生效，
 // 库样式随主题入口自动加载。
 import { localNotesTheme } from "local-notes/theme";
-// 站点自定义样式：三栏布局 / 大纲开关 / 侧栏滑动，必须排在库样式之后
-import "./custom.css";
 // 字计数徽标样式（徽标 HTML 由 .vitepress/word-count/index.ts 在构建期注入）
 import "../word-count/word-count.css";
 // 站点自有组件（非库的一部分）：Mermaid 图表 + 通用卡片网格 + 统一全屏弹窗

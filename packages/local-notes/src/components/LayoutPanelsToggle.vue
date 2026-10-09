@@ -6,7 +6,7 @@ import { ref } from "vue";
  * - 「侧栏」：切换 <html class="ln-sidebar-collapsed">，隐藏左侧 VPSidebar
  *   并将 VPContent 的 padding-left 归零（见 theme/styles.css 折叠态规则）
  * - 「大纲」：切换 <html class="ln-aside-open">，显示右侧 VPDocAside
- *   （默认收起规则在站点 custom.css：aside 容器渲染但默认 display:none）
+ *   （默认收起与展开宽度规则在 theme/skin.css）
  *
  * 状态持久化 localStorage（ln-sidebar / ln-aside）；SSR 安全——html 根元素
  * 不在 Vue 应用挂载点（#app）内，客户端 setup 同步恢复不会产生 hydration 差异；
