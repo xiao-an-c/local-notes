@@ -71,7 +71,7 @@ pnpm wordcount <目录> [--target <文件>]   # 字数统计（目录相对 demo
 
 ### Issue tracker
 
-Issues 记录在本仓库（xiao-an-c/notes）的 GitHub Issues。See `.agents/docs/issue-tracker.md`.
+Issues 记录在本仓库（VibingNotes/local-notes）的 GitHub Issues。See `.agents/docs/issue-tracker.md`.
 
 ### Triage labels
 

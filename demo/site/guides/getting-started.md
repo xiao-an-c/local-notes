@@ -22,7 +22,7 @@ pnpm add -D local-notes          # 从 npm（发布后）
 或从 GitHub monorepo 的子目录直装（无需发包）：
 
 ```sh
-pnpm add -D github:xiao-an-c/notes#path:packages/local-notes
+pnpm add -D github:VibingNotes/local-notes#path:packages/local-notes
 ```
 
 包是**源码直发**形态（`exports` 指向 TS/Vue 源码，无 dist）——你的 VitePress

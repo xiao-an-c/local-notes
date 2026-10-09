@@ -6,7 +6,7 @@ Monaco 在线编辑、思维导图、知识图谱、双链与反链、PDF/附件
 **对笔记目录结构零假设。**
 
 - 许可：[MIT](./LICENSE) —— Copyright (c) 2026 xiao-an-c
-- 仓库：<https://github.com/xiao-an-c/notes>（monorepo：本包在
+- 仓库：<https://github.com/VibingNotes/local-notes>（monorepo：本包在
   `packages/local-notes/`，demo 站在仓库根 [`demo/`](../../demo)）
 - 状态：v0.1.0 —— 下列功能全部实现，并由 demo 笔记库实际跑通
 - 语言说明：本文档以中文为主；库内代码注释为中文，`demo/` 是可运行的活样例。
@@ -234,7 +234,7 @@ pnpm build      # 静态产物，完全可读，编辑能力自动隐藏
 
 ## 开发（monorepo）
 
-本包住在 [notes monorepo](https://github.com/xiao-an-c/notes) 的
+本包住在 [notes monorepo](https://github.com/VibingNotes/local-notes) 的
 `packages/local-notes/`，demo 站（workspace 消费者）在仓库根 `demo/`。
 源码直发形态（`exports` 指向 `src/*.ts`，无 dist），demo 经 pnpm workspace
 symlink 直接编译库源码：

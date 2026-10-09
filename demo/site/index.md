@@ -6,7 +6,7 @@ title: 首页
 
 一个跑在本机的 **Markdown 文档站**，同时是 local-notes 主题包的 **demo 站**：
 `demo/site/` 文件夹就是站点内容根，写普通的 Markdown（兼容 `[[双链]]`），由
-[local-notes](https://github.com/xiao-an-c/notes)（pnpm workspace 主题包，源码在
+[local-notes](https://github.com/VibingNotes/local-notes)（pnpm workspace 主题包，源码在
 `packages/local-notes/`）发布成 VitePress 站点——改库源码保存即生效。
 
 ## 站点里有什么
